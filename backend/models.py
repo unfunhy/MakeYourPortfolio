@@ -5,7 +5,8 @@ class User(db.Model):
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
     user_id = db.Column(db.String(32), nullable=False, unique=True)
-    user_pw = db.Column(db.String(128), nullable=False)
+    user_pw = db.Column(db.BINARY(60), nullable=False)
+    introduce = db.Column(db.String(128))
     register_date = db.Column(db.DateTime, default=datetime.utcnow)
     last_update = db.Column(db.DateTime)
 
@@ -19,10 +20,12 @@ class Education(db.Model):
     id = db.Column(db.Integer, db.ForeignKey("user.id"))
     school = db.Column(db.String(128), nullable=False)
     major = db.Column(db.String(128), nullable=False)
+    state = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, school, major):
+    def __init__(self, school, major, state):
         self.school = school
         self.major = major
+        self.state = state
 
 class Award(db.Model):
     __tablename__ = "Award"
