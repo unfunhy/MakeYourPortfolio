@@ -1,4 +1,4 @@
-#Rest API  
+# Rest API  
 URI= "/login"       METHODS=["POST"]    JSON {user_id, user_pw}  
 URI= "/register"    METHODS=["POST"]    JSON {user_id, user_pw}  
 URI= "/portfolios"  METHODS=["GET"]     PARAMS=search_data  
@@ -6,7 +6,7 @@ URI= "/portfolio"   METHODS=["GET"]     PARAMS=id
 URI= "/portfolio"   METHODS=["PATCH"]   PARAMS=id, JSON {target, target_id, ...}  
 URI= "/logout"      METHODS=["GET"]  
   
-#Schema  
+# Schema  
 Table User {  
     id,          (int, pk, fk)  
     user_id,     (string)  
@@ -49,7 +49,7 @@ Table Certificate {
 }  
 
 
-#Flow  
+# Flow  
 register  
 login  
 portfolio/loggined_user_id  
