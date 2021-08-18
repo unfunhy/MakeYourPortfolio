@@ -7,7 +7,9 @@ from db_connect import db
 portfolio = Blueprint('portfolio', __name__, url_prefix="/api")
 
 @portfolio.route("/portfolios", methods=["GET"])
-def get_portfolio_list(search_data):
+def get_portfolio_list():
+    search = request.args.get("search")
+
     user_format = {
         "id": 0,
         "user_id": "",
@@ -16,7 +18,7 @@ def get_portfolio_list(search_data):
     }
     ret = []
 
-    for user in db.session.query(User).filter(User.last_update != None).all():
+    for user in User.query.filter(User.last_update != None and User.name.like("%{}%".format(search))).all():
         user_format["id"] = user.id
         user_format["user_id"] = user.user_id
         user_format["introduce"] = user.introduce
@@ -27,7 +29,8 @@ def get_portfolio_list(search_data):
 
 
 @portfolio.route("/portfolio", methods=["GET"])
-def get_portfolio(id):
+def get_portfolio():
+    id = request.args.get("id")
     portfolio_format = {
         "user_id": "",
         "introduce": "",
@@ -69,25 +72,25 @@ def get_portfolio(id):
     ret = portfolio_format
 
     try:
-        user = db.session.query(User).filter(User.id == id).first()
+        user = User.query.filter(User.id == id).first()
         ret["user_id"] = user.user_id
         ret["introduce"] = user.introduce
         ret["last_update"] = user.last_update
 
-        for edu in db.session.query(Education).all():
+        for edu in Education.query.filter(Education.id == id).all():
             education_format["edu_id"] = edu.edu_id
             education_format["school"] = edu.school
             education_format["major"] = edu.major
             education_format["state"] = edu.state
             ret[edu.id]["educations"].append(education_format)
 
-        for award in db.session.query(Award).all():
+        for award in Award.query.filter(Award.id == id).all():
             award_format["award_id"] = award.award_id
             award_format["title"] = award.title
             award_format["desc"] = award.desc
             ret[award.id]["awards"].append(award_format)
 
-        for pj in db.session.query(Project).all():
+        for pj in Project.query.filter(Project.id == id).all():
             project_format["project_id"] = pj.project_id
             project_format["title"] = pj.title
             project_format["desc"] = pj.desc
@@ -95,7 +98,7 @@ def get_portfolio(id):
             project_format["end"] = pj.end
             ret[pj.id]["projects"].append(project_format)
 
-        for cert in db.session.query(Certificate).all():
+        for cert in Certificate.query.fiter(Certificate.id == id).all():
             certificate_format["cert_id"] = cert.cert_id
             certificate_format["title"] = cert.title
             certificate_format["auth"] = cert.auth
@@ -107,20 +110,21 @@ def get_portfolio(id):
             "message": ""
         }, status=500)
     
-    return make_response(jsonify(ret), status=200)
+    return jsonify(ret), 200
 
 @portfolio.route("/portfolio", methods=["PATCH"])
-def update_portfolio(id):
+def update_portfolio():
+    id = request.args.get("id")
     data = request.get_json()
     if data.get("introduce") is not None:
-        user = db.session.query(User).filter(User.id == id).first()
+        user = User.query.filter(User.id == id).first()
         user.introduce = data.get("introduce")
     elif data.get("profile") is not None:
-        user = db.session.query(User).filter(User.id == id).first()
+        user = User.query.filter(User.id == id).first()
         user.profile = data.get("profile")
     elif data.get("education") is not None:
         for item in data.get("education"):
-            exist = db.session.query(Education).filter(Education.edu_id == item.id).first()
+            exist = Education.query.filter(Education.edu_id == item.id).first()
             if exist is not None:
                 exist.school = item.school
                 exist.major = item.major
@@ -129,7 +133,7 @@ def update_portfolio(id):
                 db.session.add(Education(item.school, item.major, item.state))
     elif data.get("award") is not None:
         for item in data.get("award"):
-            exist = db.session.query(Award).filter(Award.award_id == item.id).first()
+            exist = Award.query.filter(Award.award_id == item.id).first()
             if exist is not None:
                 exist.title = item.title
                 exist.desc = item.desc
@@ -137,7 +141,7 @@ def update_portfolio(id):
                 db.session.add(Award(item.title, item.desc))
     elif data.get("project") is not None:
         for item in data.get("project"):
-            exist = db.session.query(Project).filter(Project.project_id == item.id).first()
+            exist = Project.query.filter(Project.project_id == item.id).first()
             if exist is not None:
                 exist.title = item.title
                 exist.desc = item.desc
@@ -147,7 +151,7 @@ def update_portfolio(id):
                 db.session.add(Project(item.title, item.desc, item.start, item.end))
     elif data.get("certificate") is not None:
         for item in data.get("award"):
-            exist = db.session.query(Certificate).filter(Certificate.cert_id == item.id).first()
+            exist = Certificate.query.filter(Certificate.cert_id == item.id).first()
             if exist is not None:
                 exist.title = item.title
                 exist.auth = item.auth
@@ -155,13 +159,9 @@ def update_portfolio(id):
             else:
                 db.session.add(Certificate(item.title, item.auth, item.acq_date))
     else:
-        return make_response(jsonify({
-            "message": "변경 데이터가 없습니다."
-        }), state=400)
+        return jsonify({"message": "변경 데이터가 없습니다."}), 400
     
     db.session.commit()
 
-    return make_response(jsonify({
-        "result": "success"
-    }), state=204)
+    return jsonify({"result": "success"}), 204
 

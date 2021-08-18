@@ -1,12 +1,13 @@
-import React, { createContext } from "react";
+import React, { useState } from "react";
 import { BrowserRouter, Route, Switch, Link, useHistory, Redirect } from 'react-router-dom';
 import styled from "styled-components";
 
+import UserContext from "./UserContext";
 import Nav from "./Nav";
 import Login from "./Login";
-
-
-const UserContext = createContext();
+import Register from "./Register";
+import Portfolio from "./Portfolio";
+import Network from "./Network";
 
 const MainFrame = styled.div`
   position: relative;
@@ -17,9 +18,10 @@ const MainFrame = styled.div`
 
 const Main = () => {
   const history = useHistory();
-
+  const [user, setUser] = useState({id:0, name:"방문객"});
+  const value = {user, setUser};
   return (
-    <UserContext.Provider value="방문객">
+    <UserContext.Provider value={value}>
       <MainFrame>
         <BrowserRouter>
           <Nav></Nav>
@@ -28,10 +30,10 @@ const Main = () => {
               <Redirect to="/login" />
             </Route>
             <Route path="/portfolio/:user_id">
-              <Login />
+              <Portfolio />
             </Route>
-            <Route path="/">
-              <Login />
+            <Route path="/register">
+              <Register />
             </Route>
             <Route path="/login">
               <Login />

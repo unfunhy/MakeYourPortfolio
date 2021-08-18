@@ -11,6 +11,7 @@ Table User {
     id,          (int, pk, fk)  
     user_id,     (string)  
     user_pw,     (hash string)  
+    name,        (string)  
     introduce    (string)  
     register_date, (date)  
     last_update, (date)  

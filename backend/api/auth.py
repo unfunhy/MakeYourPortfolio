@@ -24,54 +24,51 @@ error_msg = [
 def login():
     if request.method == "GET":
         login_user = session.get("user_id")
+        login_id = db.session.query(User).filter(User.user_id == login_user).first().id
         if login_user is not None:
-            return jsonify({ "user_id": login_user }), 200
+            return jsonify({"id": login_id, "user_id": login_user}), 200
         else:
-            return jsonify({}), 200
+            return '', 400
     else:
-        #invalide id, pw, sql injection등은 front에서 처리
         user_id = request.json.get("user_id")
         user_pw = request.json.get("user_pw")
 
         if ";" in user_id or "--" in user_id:
-            return jsonify({ "message": error_msg[Error.INVALID_DATA] }), 403
+            return jsonify({"message": error_msg[Error.INVALID_DATA]}), 403
 
-        user = db.session.query(User).filter(User.id == user_id).first()
-
+        user = db.session.query(User).filter(User.user_id == user_id).first()
         if user is not None:
-            if bcrypt.check_password_hash(user_pw, user.user_pw):
+            if bcrypt.check_password_hash(user.user_pw, user_pw):
                 session['user_id'] = user_id
-                return jsonify({ "user_id": user_id }), 200
+                return jsonify({ "id": user.id, "user_id": user_id}), 200
 
-        return jsonify({ "message": error_msg[Error.INVALID_DATA] }), 401
+        return jsonify({"message": error_msg[Error.INVALID_DATA]}), 401
+
+
+@auth.route("/register", methods=["GET"])
+def check_id():
+    user_id = request.args.get("user_id")
+    if db.session.query(User).filter(User.user_id == user_id).first():
+        return jsonify({"message": error_msg[Error.DUPLICATE_ID]}), 409
+    return '', 200
 
 
 @auth.route("/register", methods=["POST"])
 def register():
-    #invalide id, pw, sql injection등은 front에서 처리
     user_id = request.json.get("user_id")
     raw_password = request.json.get("user_pw")
     user_pw = bcrypt.generate_password_hash(raw_password)
 
     if db.session.query(User).filter(User.user_id == user_id).first():
-        return make_response(jsonify({
-            "message": error_msg[Error.DUPLICATE_ID]
-        }), status=409
-        )
+        return jsonify({"message": error_msg[Error.DUPLICATE_ID]}), 409
 
     db.session.add(User(user_id, user_pw))
     db.session.commit()
 
-    return make_response(jsonify({
-        "result": "success"
-        }), status=201
-    )
+    return '', 201
 
 
 @auth.route("/logout", methods=["GET"])
 def logout():
     session["user_id"] = None
-    return make_response(jsonify({
-        "result": "success"
-        }), status=200
-    )
+    return '', 200
