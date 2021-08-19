@@ -3,7 +3,9 @@ import React from "react";
 export const Education = ({ref}) => {
     return (
         <form ref={ref}>
-            <input></input>
+            <input 
+                
+            />
         </form>
     );
 }

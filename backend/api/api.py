@@ -1,8 +1,10 @@
+from os import abort
 from flask import json, request, jsonify, session, Blueprint
 from flask.helpers import make_response
 
 from models import User, Education, Award, Project, Certificate
 from db_connect import db
+from AuthManager import createToken, jwt_required
 
 portfolio = Blueprint('portfolio', __name__, url_prefix="/api")
 
@@ -29,8 +31,9 @@ def get_portfolio_list():
 
 
 @portfolio.route("/portfolio", methods=["GET"])
-def get_portfolio():
-    id = request.args.get("id")
+@jwt_required
+def get_portfolio(id):
+    #id = request.args.get("id")
     portfolio_format = {
         "user_id": "",
         "introduce": "",
@@ -106,15 +109,14 @@ def get_portfolio():
             ret[cert.id]["certifications"].append(certificate_format)
 
     except KeyError as e:
-        return make_response({
-            "message": ""
-        }, status=500)
+        return abort(500)
     
-    return jsonify(ret), 200
+    return ret, 200
 
 @portfolio.route("/portfolio", methods=["PATCH"])
-def update_portfolio():
-    id = request.args.get("id")
+@jwt_required
+def update_portfolio(id):
+    #id = request.args.get("id")
     data = request.get_json()
     if data.get("introduce") is not None:
         user = User.query.filter(User.id == id).first()
@@ -159,9 +161,9 @@ def update_portfolio():
             else:
                 db.session.add(Certificate(item.title, item.auth, item.acq_date))
     else:
-        return jsonify({"message": "변경 데이터가 없습니다."}), 400
+        return abort(400, "변경 데이터가 없습니다.")
     
     db.session.commit()
 
-    return jsonify({"result": "success"}), 204
+    return '', 204
 

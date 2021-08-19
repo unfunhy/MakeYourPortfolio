@@ -1,19 +1,29 @@
+import os
 import sys
 sys.path.append("./api")
+from dotenv import load_dotenv
+load_dotenv(verbose=True)
 
 from flask import Flask
+from flask_cors import CORS
 from flask_bcrypt import Bcrypt
+
 
 from db_connect import db
 from auth import auth
+from api import portfolio
 
 
 app = Flask(__name__)
-app.register_blueprint(auth)
+CORS(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:asdf1234@127.0.0.1:3306/elice_portfolio"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = 'elice-portfolio-secret-key-unfunhy/_tE#)*m1pU3$aX56l^$%'
+app.register_blueprint(auth)
+app.register_blueprint(portfolio)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.getenv("SQLALCHEMY_TRACK_MODIFICATIONS")
+app.config["JWT_SECRET_KEY"] = os.getenv("secret_key")
+app.secret_key = os.getenv("secret_key")
 
 db.init_app(app)
 bcrypt = Bcrypt(app)
