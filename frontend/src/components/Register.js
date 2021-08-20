@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 
 import UserContext from "./UserContext";
+import * as Auth from "./auth/Auth";
 import { Card } from "./Card";
 
 
@@ -32,6 +33,7 @@ const Register = () => {
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
+  const name = useRef();
 
   const [id_state, set_id_state] = useState(0);
 
@@ -58,19 +60,8 @@ const Register = () => {
   ];
 
   useEffect(() => {
-    const check_login = async () => {
-      try {
-        const res = await axios.get("/api/login");
-        setUser({ ...res.data });
-        if (user.id !== 0) {
-          history.push(`/portfolio/${user.id}`);
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    check_login();
-  }, []);
+    if (user.id !== 0) history.push(`/portfolio/${user.id}`);
+  }, [user]);
 
   useEffect(() => {
     var timer = setTimeout(check_id, 1000);
@@ -94,6 +85,7 @@ const Register = () => {
         {
           user_id: id,
           user_pw: pw,
+          name: name.current.value,
         },
         {
           headers: {
@@ -103,7 +95,8 @@ const Register = () => {
       );
       await setTimeout(() => history.push("/login"), 0);
     } catch (e) {
-      alert(e.response.data.message);
+      console.log(e);
+      alert(e.response.message);
     }
   };
 
@@ -157,6 +150,10 @@ const Register = () => {
           onChange={(e) => setConfirmPw(e.target.value)}
         />
         {!check_confirm_pw() && <p>비밀번호가 일치하지 않습니다.</p>}
+        <label>이름</label>
+        <input
+          ref={name}
+        />
         <button onClick={handleRegister}>회원가입</button>
       </Card>
     </RegisterWrapper>

@@ -7,12 +7,14 @@ class User(db.Model):
     user_id = db.Column(db.String(32), nullable=False, unique=True)
     user_pw = db.Column(db.BINARY(60), nullable=False)
     introduce = db.Column(db.String(128))
+    name = db.Column(db.String(32))
     register_date = db.Column(db.DateTime, default=datetime.utcnow)
     last_update = db.Column(db.DateTime)
 
-    def __init__(self, user_id, user_pw):
+    def __init__(self, user_id, user_pw, name):
         self.user_id = user_id
         self.user_pw = user_pw
+        self.name = name
 
 class Education(db.Model):
     __tablename__ = "education"

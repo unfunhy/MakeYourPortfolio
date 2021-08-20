@@ -35,8 +35,8 @@ def get_portfolio_list():
 def get_portfolio(id):
     #id = request.args.get("id")
     portfolio_format = {
-        "user_id": "",
         "introduce": "",
+        "profile": "",
         "last_update": "",
         "educations": [],
         "awards": [],
@@ -76,8 +76,8 @@ def get_portfolio(id):
 
     try:
         user = User.query.filter(User.id == id).first()
-        ret["user_id"] = user.user_id
         ret["introduce"] = user.introduce
+        ret["profile"] = user.profile
         ret["last_update"] = user.last_update
 
         for edu in Education.query.filter(Education.id == id).all():
@@ -111,7 +111,9 @@ def get_portfolio(id):
     except KeyError as e:
         return abort(500)
     
+    print(ret)
     return ret, 200
+
 
 @portfolio.route("/portfolio", methods=["PATCH"])
 @jwt_required

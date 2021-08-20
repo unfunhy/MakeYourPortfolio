@@ -6,7 +6,7 @@ import UserContext from "./UserContext";
 import Nav from "./Nav";
 import Login from "./Login";
 import Register from "./Register";
-import Portfolio from "./Portfolio";
+import Portfolio from "./portfolio/Portfolio";
 import Network from "./Network";
 
 const MainFrame = styled.div`

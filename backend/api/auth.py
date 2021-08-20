@@ -4,10 +4,10 @@ from enum import IntEnum
 
 from models import User
 from db_connect import db
-from AuthManager import createToken
+from AuthManager import createToken, jwt_required
 
 
-auth = Blueprint('auth', __name__, url_prefix='/api')
+auth = Blueprint('auth', __name__, url_prefix="/api")
 bcrypt = Bcrypt()
 
 
@@ -35,7 +35,11 @@ def login():
     user = User.query.filter(User.user_id == user_id).first()
     if user is not None:
         if bcrypt.check_password_hash(user.user_pw, user_pw):
-            return { "Authorization" :createToken(user.id) }, 200
+            return { 
+                "Authorization" :createToken(user.id, user.name),
+                "id": user.id,
+                "name": user.name
+            }, 200
 
     return abort(401, error_msg[Error.INVALID_DATA])
 
@@ -53,11 +57,12 @@ def register():
     user_id = request.json.get("user_id")
     raw_password = request.json.get("user_pw")
     user_pw = bcrypt.generate_password_hash(raw_password)
+    name = request.json.get("name")
 
     if User.query.filter(User.user_id == user_id).first():
         return abort(409, error_msg[Error.DUPLICATE_ID])
 
-    db.session.add(User(user_id, user_pw))
+    db.session.add(User(user_id, user_pw, name))
     try:
         db.session.commit()
     except:
@@ -66,10 +71,4 @@ def register():
 
     return '', 201
 
-
-# #client side에서 토큰 삭제
-# @auth.route("/logout", methods=["GET"])
-# @jwt_required
-# def logout(id):
-#     session["user_id"] = None
-#     return '', 200
+# logout => 클라이언트에서 Token 삭제

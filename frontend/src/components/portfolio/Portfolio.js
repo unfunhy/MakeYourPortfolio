@@ -3,21 +3,20 @@ import { useHistory } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 
-import UserContext from "./UserContext";
-import { Card } from "./Card";
+import UserContext from "../UserContext";
+import { Card } from "../Card";
+import Profile from "./Profile";
+import * as PortfolioComponent from "./PortfolioDetail";
 
 const PortfolioWrapper = styled.div`
   display: flex;
   justify-content: flex-start;
 `;
 
-const Portfolio = () => {
+const Portfolio = ({ id }) => {
   const { user, setUser } = useContext(UserContext);
   const history = useHistory();
-  const edu_card = useRef();
-  const award_card = useRef();
-  const pj_card = useRef();
-  const cert_card = useRef();
+  const [data, setData] = useState({});
 
   const draw_content = (data) => {};
 
@@ -26,8 +25,12 @@ const Portfolio = () => {
       const res = await axios.get("/api/portfolio", {
         params: { id: user.id },
       });
-      draw_content(res.data);
+      //draw_content(res.data);
+      console.log(res.data);
+      setData(res.data);
     };
+
+    fetch();
   }, []);
 
   const update_profile = () => {};
@@ -50,12 +53,23 @@ const Portfolio = () => {
 
   const update_cert = () => {};
 
-  return (
-    <PortfolioWrapper>
-      <Card width="100px" height="120px"></Card>
-      <Card width="400px" height="520px"></Card>
-    </PortfolioWrapper>
-  );
+  if (data === {}) return <div>로딩 중...</div>;
+  else
+    return (
+      <PortfolioWrapper>
+        <Card width="100px" height="120px">
+          <Profile
+            canEdit={user.id === id}
+            data={{
+              introduce: data.introduce,
+              profile: data.profile,
+            }}
+            username={user.name} 
+          />
+        </Card>
+        <Card width="400px" height="520px"></Card>
+      </PortfolioWrapper>
+    );
 };
 
 export default Portfolio;

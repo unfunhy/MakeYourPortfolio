@@ -1,8 +1,9 @@
 import jwt
 from flask import request, current_app, abort
 from datetime import datetime, timedelta
+from functools import wraps
 
-def createToken(id):
+def createToken(id, name):
     return jwt.encode(
         {
             "id": id,
@@ -13,6 +14,7 @@ def createToken(id):
     )
 
 def jwt_required(func):
+    @wraps(func)
     def wrapper():
         access_token = request.headers.get("Authorization")
         if access_token is not None:
@@ -22,7 +24,6 @@ def jwt_required(func):
                 return abort(401, "INVALID_TOKEN")
             except jwt.ExpiredSignatrueError:
                 return abort(401, "EXPIRED_TOKEN")
-
             func(payload.get("id"))
 
         else:
@@ -30,5 +31,5 @@ def jwt_required(func):
 
     return wrapper
 
-# 시간 남을 시 access token, refresh token 구현
+# 시간 남을 시 access token, refresh token 구현 -> 말고 Oauth 하면 될듯 구글 로그인도 할 겸
 # 참고자료: https://tansfil.tistory.com/59

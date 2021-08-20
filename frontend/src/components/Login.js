@@ -5,6 +5,7 @@ import styled from "styled-components";
 
 import UserContext from "./UserContext";
 import { Card } from "./Card";
+import * as Auth from "./auth/Auth";
 
 const LoginWrapper = styled.div`
   display: flex;
@@ -19,22 +20,12 @@ const Login = () => {
   const { user, setUser } = useContext(UserContext);
 
   useEffect(() => {
-    const check_login = async () => {
-      try {
-        const res = await axios.get("/api/login");
-        await setTimeout(() => setUser({ ...res.data }), 0);
-        await setTimeout(() => {
-          console.log(user);
-          if (user.id !== 0) {
-            history.push(`/api/portfolio/${user.id}`);
-          }
-        });
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    check_login();
+    if (user.id !== 0) history.push(`/portfolio/${user.id}`);
   }, []);
+
+  useEffect(() => {
+    if (user.id !== 0) history.push(`/portfolio/${user.id}`);
+  }, [user]);
 
   const handleLogin = async () => {
     const data = {
@@ -43,15 +34,13 @@ const Login = () => {
     };
 
     try {
-      const res = await axios.post("/api/login", JSON.stringify(data), {
+      const res = await axios.post("api/login", JSON.stringify(data), {
         headers: {
           "Content-Type": `application/json`,
         },
       });
-      console.log(res.data);
-      console.log(user);
-      setUser({ ...res.data });
-      console.log(user);
+      localStorage.setItem("access-token", res.data.Authorization);
+      setUser({ id: res.data.id, name: res.data.name });
     } catch (e) {
       alert(e.response.data.message);
     }
