@@ -7,7 +7,7 @@ import Nav from "./Nav";
 import Login from "./Login";
 import Register from "./Register";
 import Portfolio from "./portfolio/Portfolio";
-import Network from "./Network";
+import Network from "./network/Network";
 
 const MainFrame = styled.div`
   position: relative;
@@ -38,10 +38,13 @@ const Main = () => {
             <Route path="/login">
               <Login />
             </Route>
+            <Route path="/portfolios">
+              <Network />
+            </Route>
           </Switch>
         </BrowserRouter>
       </MainFrame>
-    </UserContext.Provider>
+    </UserContext.Provider> 
   );
 };
 

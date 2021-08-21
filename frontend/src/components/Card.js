@@ -4,9 +4,10 @@ export const Card = styled.div`
     display: flex;
     flex-direction: column;
     align-items: ${props=>props.login ? "center" : "left"};
-    ${props=>props.login && css`
+    margin: ${props=>props.login ? `auto` : `10px 15px 0px 15px`};
+    /* ${props=>props.login && css`
         margin: auto;
-    `}
+    `} */
     background-color: white;
     border: 1px solid lightgray;
     border-radius: 4px;

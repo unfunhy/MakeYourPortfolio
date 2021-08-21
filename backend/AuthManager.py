@@ -3,7 +3,7 @@ from flask import request, current_app, abort
 from datetime import datetime, timedelta
 from functools import wraps
 
-def createToken(id, name):
+def createToken(id):
     return jwt.encode(
         {
             "id": id,
@@ -24,8 +24,7 @@ def jwt_required(func):
                 return abort(401, "INVALID_TOKEN")
             except jwt.ExpiredSignatrueError:
                 return abort(401, "EXPIRED_TOKEN")
-            func(payload.get("id"))
-
+            return func(payload.get("id"))
         else:
             return abort(401, "UNAUTHORIZED_USER")
 

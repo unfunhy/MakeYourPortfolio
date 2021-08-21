@@ -8,6 +8,7 @@ class User(db.Model):
     user_pw = db.Column(db.BINARY(60), nullable=False)
     introduce = db.Column(db.String(128))
     name = db.Column(db.String(32))
+    profile = db.Column(db.String(128))
     register_date = db.Column(db.DateTime, default=datetime.utcnow)
     last_update = db.Column(db.DateTime)
 

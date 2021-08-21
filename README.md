@@ -1,8 +1,9 @@
 # Rest API  
-URI= "/login"       METHODS=["POST"]    JSON {user_id, user_pw}  
+URI= "/login"       METHODS=["GET"]     JWT=>id / return id, name  
+URI= "/login"       METHODS=["POST"]    JSON {user_id, user_pw} / return {JWT, id, name}  
 URI= "/register"    METHODS=["POST"]    JSON {user_id, user_pw}  
-URI= "/portfolios"  METHODS=["GET"]     PARAMS=search_data  
-URI= "/portfolio"   METHODS=["GET"]     JWT=>id  
+URI= "/portfolios"  METHODS=["GET"]     PARAMS=search_data / return data  
+URI= "/portfolio"   METHODS=["GET"]     JWT=>id / return data  
 URI= "/portfolio"   METHODS=["PATCH"]   JWT=>id, JSON {target, target_id, ...}  
 ~~URI= "/logout"      METHODS=["GET"]     Deleted ...~~  
   
@@ -15,7 +16,7 @@ Table User {
     user_pw,     (hash string)  
     name,        (string)  
     introduce    (string)  
-    profile      (string? mediumblob?)
+    profile      (string)
     register_date, (date)  
     last_update, (date)  
 }
@@ -71,3 +72,8 @@ portfolios
 portfolio/selected_user_id  
   
   
+
+# 구현 필요한 부분
+1. portfolio 페이지
+2. file input api, schema 변경
+2. network 페이지

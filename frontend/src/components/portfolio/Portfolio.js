@@ -1,16 +1,24 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 
 import UserContext from "../UserContext";
 import { Card } from "../Card";
-import Profile from "./Profile";
-import * as PortfolioComponent from "./PortfolioDetail";
+import * as PortfolioDetail from "./PortfolioDetail";
+import { getToken } from "../auth/Auth";
 
 const PortfolioWrapper = styled.div`
+  height: 100vh;
   display: flex;
   justify-content: flex-start;
+  padding-top: 50px;
+  padding-left: 10px;
+`;
+
+const DetailInfoWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 const Portfolio = ({ id }) => {
@@ -18,56 +26,88 @@ const Portfolio = ({ id }) => {
   const history = useHistory();
   const [data, setData] = useState({});
 
-  const draw_content = (data) => {};
-
-  useEffect(() => {
-    const fetch = async () => {
+  const fetch = async () => {
+    try {
       const res = await axios.get("/api/portfolio", {
-        params: { id: user.id },
+        headers: { Authorization: getToken() },
       });
-      //draw_content(res.data);
       console.log(res.data);
       setData(res.data);
-    };
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
-    fetch();
+  useEffect(() => {
+    //user.id가 0이 아닌 경우 데이터 받아옴
+    if (user.id !== 0)
+      fetch();
+    //user.id가 0인 경우(새로고침 등의 이유로 context가 초기화된 경우)
+    //userInfo 다시 받아옴
+    else {
+      const getUser = async () => {
+        try {
+          const userInfo = await axios.get("/api/login", {
+            headers: { Authorization: getToken() },
+          });
+          //useContext가 의미가 있나 확인 필요
+          //refresh할 때 마다 초기화 됨 -> 결국 서버에서 id, name 다시 얻어와야함
+          //그럼 전역을 쓰는 이유가 무엇? 그냥 useState쓰면 안되나
+          setUser({ id: userInfo.data.id, name: userInfo.data.name });
+        } catch {
+          history.push("/login");
+        }
+      };
+      getUser();
+    }
   }, []);
 
-  const update_profile = () => {};
+  //초기 user.id가 0인 경우, setUser 후 fetch
+  useEffect(() => {
+    fetch();
+  }, [user]);
 
-  const update_introduce = () => {};
+  // const update_profile = () => {};
 
-  const create_education = () => {};
+  // const update_introduce = () => {};
 
-  const update_education = () => {};
+  // const create_education = () => {};
 
-  const create_award = () => {};
+  // const update_education = () => {};
 
-  const update_award = () => {};
+  // const create_award = () => {};
 
-  const create_project = () => {};
+  // const update_award = () => {};
 
-  const update_project = () => {};
+  // const create_project = () => {};
 
-  const create_cert = () => {};
+  // const update_project = () => {};
 
-  const update_cert = () => {};
+  // const create_cert = () => {};
+
+  // const update_cert = () => {};
 
   if (data === {}) return <div>로딩 중...</div>;
   else
     return (
       <PortfolioWrapper>
         <Card width="100px" height="120px">
-          <Profile
+          <PortfolioDetail.Profile
             canEdit={user.id === id}
             data={{
               introduce: data.introduce,
               profile: data.profile,
             }}
-            username={user.name} 
+            username={user.name}
           />
         </Card>
-        <Card width="400px" height="520px"></Card>
+        <DetailInfoWrapper>
+          <Card width="400px" height="auto"><p>asdfasdf</p></Card>
+          <Card width="400px" height="auto"><p>asdfasdf</p></Card>
+          <Card width="400px" height="auto"><p>asdfasdf</p></Card>
+          <Card width="400px" height="auto"><p>asdfasdf</p></Card>
+          <Card width="400px" height="auto"><p>asdfasdf</p></Card>
+        </DetailInfoWrapper>
       </PortfolioWrapper>
     );
 };

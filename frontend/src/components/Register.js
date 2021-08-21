@@ -61,7 +61,7 @@ const Register = () => {
 
   useEffect(() => {
     if (user.id !== 0) history.push(`/portfolio/${user.id}`);
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     var timer = setTimeout(check_id, 1000);
@@ -93,7 +93,7 @@ const Register = () => {
           },
         }
       );
-      await setTimeout(() => history.push("/login"), 0);
+      history.push("/login");
     } catch (e) {
       console.log(e);
       alert(e.response.message);

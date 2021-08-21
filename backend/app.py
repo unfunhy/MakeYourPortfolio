@@ -8,7 +8,6 @@ from flask import Flask
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 
-
 from db_connect import db
 from auth import auth
 from api import portfolio
