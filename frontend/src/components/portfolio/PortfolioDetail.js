@@ -13,12 +13,14 @@ const ButtonTag = ({ editMode, handleEdit, handleSubmit, handleCreate }) => {
   if (editMode)
     return (
       <div>
-        <botton onClick={handleSubmit}>
+        <button onClick={handleSubmit}>
           <img />
-        </botton>
+          submit
+        </button>
         {handleCreate && (
           <button onClick={handleCreate}>
             <img />
+            create
           </button>
         )}
       </div>
@@ -28,6 +30,7 @@ const ButtonTag = ({ editMode, handleEdit, handleSubmit, handleCreate }) => {
       <div>
         <button onClick={handleEdit}>
           <img src="" />
+          edit
         </button>
       </div>
     );
@@ -38,7 +41,9 @@ export const Profile = ({ canEdit, data, username }) => {
   const [editMode, setEditMode] = useState(false);
   const [input, setInput] = useState({});
 
-  const handleEdit = () => setEditMode(true);
+  const handleEdit = (e) => {
+    setEditMode(true);
+  };
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -53,18 +58,25 @@ export const Profile = ({ canEdit, data, username }) => {
 
   return (
     <div>
-      <input type="image" />
-      <form onSubmit={handleSubmit}>
+      <div>
+        <input type="image" />
+      </div>
+      <div>
         <p>{username}</p>
-        <PinputTag props={[handleChange, editMode, data, "introduce"]} />
-        {canEdit && (
+        <PinputTag
+          handleChange={handleChange}
+          editMode={editMode}
+          data={data}
+          tag_name="introduce"
+        />
+        {canEdit === true && (
           <ButtonTag
             editMode={editMode}
             handleEdit={handleEdit}
             handleSubmit={handleSubmit}
           />
         )}
-      </form>
+      </div>
     </div>
   );
 };

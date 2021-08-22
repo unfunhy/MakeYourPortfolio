@@ -6,7 +6,7 @@ import styled from "styled-components";
 import UserContext from "../UserContext";
 import { Card } from "../Card";
 import * as PortfolioDetail from "./PortfolioDetail";
-import { getToken } from "../auth/Auth";
+import { getToken, removeToken } from "../auth/Auth";
 
 const PortfolioWrapper = styled.div`
   height: 100vh;
@@ -21,7 +21,9 @@ const DetailInfoWrapper = styled.div`
   flex-direction: column;
 `;
 
-const Portfolio = ({ id }) => {
+const Portfolio = (props) => {
+  const id = parseInt(props.match.params.user_id);
+
   const { user, setUser } = useContext(UserContext);
   const history = useHistory();
   const [data, setData] = useState({});
@@ -39,11 +41,16 @@ const Portfolio = ({ id }) => {
   };
 
   useEffect(() => {
-    //user.id가 0이 아닌 경우 데이터 받아옴
+    /* 
+    # componentDidMount
+    # 
+    # 1. user.id가 0이 아닌 경우 portfolio data 요청
+    # 2. user.id가 0인 경우(새로고침 등의 이유로 context가 초기화된 경우)
+    #    userInfo 요청 후 portfolio data 요청
+    */
     if (user.id !== 0)
       fetch();
-    //user.id가 0인 경우(새로고침 등의 이유로 context가 초기화된 경우)
-    //userInfo 다시 받아옴
+    //
     else {
       const getUser = async () => {
         try {
@@ -55,17 +62,15 @@ const Portfolio = ({ id }) => {
           //그럼 전역을 쓰는 이유가 무엇? 그냥 useState쓰면 안되나
           setUser({ id: userInfo.data.id, name: userInfo.data.name });
         } catch {
+          removeToken();
           history.push("/login");
+          return;
         }
       };
       getUser();
+      fetch();
     }
   }, []);
-
-  //초기 user.id가 0인 경우, setUser 후 fetch
-  useEffect(() => {
-    fetch();
-  }, [user]);
 
   // const update_profile = () => {};
 
@@ -87,7 +92,7 @@ const Portfolio = ({ id }) => {
 
   // const update_cert = () => {};
 
-  if (data === {}) return <div>로딩 중...</div>;
+  if (data === {} || user.id === 0) return <div>로딩 중...</div>;
   else
     return (
       <PortfolioWrapper>

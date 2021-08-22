@@ -3,9 +3,9 @@ import { useHistory } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 
-import UserContext from "./UserContext";
-import { Card } from "./Card";
-import { getToken, removeToken } from "./auth/Auth";
+import UserContext from "../UserContext";
+import { Card } from "../Card";
+import { getToken, removeToken } from "./Auth";
 
 const LoginWrapper = styled.div`
   display: flex;
@@ -15,7 +15,7 @@ const LoginWrapper = styled.div`
 
 const Login = () => {
   const history = useHistory();
-  const user_id = useRef();
+  const email = useRef();
   const user_pw = useRef();
   const { user, setUser } = useContext(UserContext);
 
@@ -48,7 +48,7 @@ const Login = () => {
 
   const handleLogin = async () => {
     const data = {
-      user_id: user_id.current.value,
+      email: email.current.value,
       user_pw: user_pw.current.value,
     };
 
@@ -75,7 +75,7 @@ const Login = () => {
     <LoginWrapper>
       <Card login width="400px" height="520px">
         <label>아이디</label>
-        <input ref={user_id} />
+        <input ref={email} />
         <label>비밀번호</label>
         <input type="password" ref={user_pw} />
         <button onClick={handleLogin}>로그인</button>

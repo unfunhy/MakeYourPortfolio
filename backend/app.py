@@ -1,9 +1,7 @@
-import os
 import sys
 sys.path.append("./api")
-from dotenv import load_dotenv
-load_dotenv(verbose=True)
 
+import config
 from flask import Flask
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
@@ -16,13 +14,10 @@ from api import portfolio
 app = Flask(__name__)
 CORS(app)
 
+config.set_config()
+
 app.register_blueprint(auth)
 app.register_blueprint(portfolio)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI")
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.getenv("SQLALCHEMY_TRACK_MODIFICATIONS")
-app.config["JWT_SECRET_KEY"] = os.getenv("secret_key")
-app.secret_key = os.getenv("secret_key")
 
 db.init_app(app)
 bcrypt = Bcrypt(app)

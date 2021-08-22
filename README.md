@@ -10,55 +10,59 @@ URI= "/portfolio"   METHODS=["PATCH"]   JWT=>id, JSON {target, target_id, ...}
 # Schema  
 
 ```
-Table User {  
+Table user {  
     id,          (int, pk, fk)  
-    user_id,     (string)  
-    user_pw,     (hash string)  
-    name,        (string)  
-    introduce    (string)  
-    profile      (string)
-    register_date, (date)  
-    last_update, (date)  
+    email,       (varchar(32))  
+    user_pw,     (binary(60))  
+    name,        (varchar(16))  
+    introduce    (varchar(128))  
+    profile      (varchar(128))
+    register_date, (datetime)  
+    last_update, (datetime)  
 }
 ```
 
 ```
-Table Education {  
-    edu_id,      (int, pk)  
-    id,          (int, fk)  
-    school,      (string)  
-    major,       (string)  
-    state,       (string)  
+Table education {  
+    id,          (int, pk)  
+    user_id,     (int, fk)  
+    school,      (varchar(128))  
+    major,       (varchar(128))  
+    state,       (char(1))  
 }  
+Table education_state{
+    id,          (int, pk)
+    state        (varchar(16))
+}
 ```
 
 ```
-Table Award {  
-    award_id,    (int, pk)  
-    id,          (int, fk)  
-    title,       (string)  
-    desc,        (string)  
+Table award {  
+    id,          (int, pk)  
+    user_id,     (int, fk)  
+    title,       (varchar(128))  
+    desc,        (text)  
 }  
 ```
 
 ```
 Table Project {  
-    project_id,  (int, pk)  
-    id,          (int, fk)  
-    title,       (string)  
-    desc,        (string)  
-    start,       (date)  
-    end,         (date)  
+    id,          (int, pk)  
+    user_id,     (int, fk)  
+    title,       (varchar(128))  
+    desc,        (text)  
+    start,       (datetime)  
+    end,         (datetime)  
 }  
 ```
 
 ```
 Table Certificate {  
-    cert_id,     (int, pk)  
-    id,          (int, fk)  
-    title,       (string)  
-    auth,        (string)  
-    acq_date     (date)  
+    id,          (int, pk)  
+    user_id,     (int, fk)  
+    title,       (varchar(128))  
+    auth,        (varchar(128))  
+    acq_date     (datetime)  
 }  
 ```
 

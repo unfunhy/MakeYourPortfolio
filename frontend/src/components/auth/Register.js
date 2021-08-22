@@ -3,9 +3,9 @@ import { useHistory } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 
-import UserContext from "./UserContext";
-import * as Auth from "./auth/Auth";
-import { Card } from "./Card";
+import UserContext from "../UserContext";
+import * as Auth from "./Auth";
+import { Card } from "../Card";
 
 
 // ⑧ 정보통신서비스 제공자등은 개인정보취급자를 대상으로 다음 각 호의 사항을
@@ -64,17 +64,9 @@ const Register = () => {
   }, []);
 
   useEffect(() => {
-    var timer = setTimeout(check_id, 1000);
+    var timer = setTimeout(check_email, 1000);
     return () => clearTimeout(timer);
   }, [id]);
-
-  useEffect(() => {
-    check_pw();
-  }, [pw]);
-
-  useEffect(() => {
-    check_confirm_pw();
-  }, [confirmPw]);
 
   const handleRegister = async () => {
     if (id_state != 1 || check_pw() != 1) return;
@@ -83,7 +75,7 @@ const Register = () => {
       const res = await axios.post(
         "/api/register",
         {
-          user_id: id,
+          email: id,
           user_pw: pw,
           name: name.current.value,
         },
@@ -100,11 +92,11 @@ const Register = () => {
     }
   };
 
-  const check_id = async () => {
+  const check_email = async () => {
     if (id.length == 0) return;
     if (regex_id.test(id)) {
       try {
-        await axios.get("/api/register", { params: { user_id: id } });
+        await axios.get("/api/register", { params: { email: id } });
         set_id_state(1);
       } catch (e) {
         console.log(e);
