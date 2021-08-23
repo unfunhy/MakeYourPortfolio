@@ -7,12 +7,6 @@ import UserContext from "../UserContext";
 import { Card } from "../Card";
 import { getToken, removeToken } from "./Auth";
 
-const LoginWrapper = styled.div`
-  display: flex;
-  height: 100vh;
-  justify-content: center;
-`;
-
 const Login = () => {
   const history = useHistory();
   const email = useRef();
@@ -61,7 +55,7 @@ const Login = () => {
       localStorage.setItem("access-token", res.data.Authorization);
       setUser({ id: res.data.id, name: res.data.name });
     } catch (e) {
-      alert(e.response.data.message);
+      alert(e.response.data);
     }
   };
 
@@ -87,3 +81,9 @@ const Login = () => {
 };
 
 export default Login;
+
+const LoginWrapper = styled.div`
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+`;

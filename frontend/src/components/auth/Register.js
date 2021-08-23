@@ -7,7 +7,6 @@ import UserContext from "../UserContext";
 import * as Auth from "./Auth";
 import { Card } from "../Card";
 
-
 // ⑧ 정보통신서비스 제공자등은 개인정보취급자를 대상으로 다음 각 호의 사항을
 // 포함하는 비밀번호 작성규칙을 수립하고, 이를 적용․운용하여야 한다.
 // 1. 영문, 숫자, 특수문자 중 2종류 이상을 조합하여 최소 10자리 이상 또는 3종류
@@ -21,12 +20,6 @@ import { Card } from "../Card";
 // 처리시스템 및 개인정보취급자의 컴퓨터와 모바일 기기에 조치를 취하여야 한다.
 // ⑩ 정보통신서비스 제공자등은 개인정보처리시스템에 대한 개인정보취급자의
 // 접속이 필요한 시간 동안만 최대 접속시간 제한 등의 조치를 취하여야 한다.
-
-const RegisterWrapper = styled.div`
-  display: flex;
-  height: 100vh;
-  justify-content: center;
-`;
 
 const Register = () => {
   const { user, setUser } = useContext(UserContext);
@@ -153,3 +146,9 @@ const Register = () => {
 };
 
 export default Register;
+
+const RegisterWrapper = styled.div`
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+`;

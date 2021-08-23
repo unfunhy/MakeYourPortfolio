@@ -5,21 +5,8 @@ import styled from "styled-components";
 
 import UserContext from "../UserContext";
 import { Card } from "../Card";
-import * as PortfolioDetail from "./PortfolioDetail";
+import UserInfo from "./UserInfo";
 import { getToken, removeToken } from "../auth/Auth";
-
-const PortfolioWrapper = styled.div`
-  height: 100vh;
-  display: flex;
-  justify-content: flex-start;
-  padding-top: 50px;
-  padding-left: 10px;
-`;
-
-const DetailInfoWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
 
 const Portfolio = (props) => {
   const id = parseInt(props.match.params.user_id);
@@ -33,7 +20,7 @@ const Portfolio = (props) => {
       const res = await axios.get("/api/portfolio", {
         headers: { Authorization: getToken() },
       });
-      console.log(res.data);
+      console.log("response data ...", res.data);
       setData(res.data);
     } catch (e) {
       console.log(e);
@@ -61,7 +48,8 @@ const Portfolio = (props) => {
           //refresh할 때 마다 초기화 됨 -> 결국 서버에서 id, name 다시 얻어와야함
           //그럼 전역을 쓰는 이유가 무엇? 그냥 useState쓰면 안되나
           setUser({ id: userInfo.data.id, name: userInfo.data.name });
-        } catch {
+        } catch(e) {
+          alert(e);
           removeToken();
           history.push("/login");
           return;
@@ -72,49 +60,43 @@ const Portfolio = (props) => {
     }
   }, []);
 
-  // const update_profile = () => {};
-
-  // const update_introduce = () => {};
-
-  // const create_education = () => {};
-
-  // const update_education = () => {};
-
-  // const create_award = () => {};
-
-  // const update_award = () => {};
-
-  // const create_project = () => {};
-
-  // const update_project = () => {};
-
-  // const create_cert = () => {};
-
-  // const update_cert = () => {};
-
-  if (data === {} || user.id === 0) return <div>로딩 중...</div>;
+  if (Object.keys(data).length === 0 || user.id === 0) return <div>로딩 중...</div>;
   else
     return (
       <PortfolioWrapper>
-        <Card width="100px" height="120px">
-          <PortfolioDetail.Profile
+        <Card width="200px" height="200px">
+          <UserInfo
             canEdit={user.id === id}
             data={{
-              introduce: data.introduce,
-              profile: data.profile,
+              //id: user.id,
+              introduce: data.user.introduce,
+              profile: data.user.profile,
             }}
             username={user.name}
           />
         </Card>
         <DetailInfoWrapper>
-          <Card width="400px" height="auto"><p>asdfasdf</p></Card>
-          <Card width="400px" height="auto"><p>asdfasdf</p></Card>
-          <Card width="400px" height="auto"><p>asdfasdf</p></Card>
-          <Card width="400px" height="auto"><p>asdfasdf</p></Card>
-          <Card width="400px" height="auto"><p>asdfasdf</p></Card>
+          <Card width="600px" height="auto"><p>asdfasdf</p></Card>
+          <Card width="600px" height="auto"><p>asdfasdf</p></Card>
+          <Card width="600px" height="auto"><p>asdfasdf</p></Card>
+          <Card width="600px" height="auto"><p>asdfasdf</p></Card>
+          <Card width="600px" height="auto"><p>asdfasdf</p></Card>
         </DetailInfoWrapper>
       </PortfolioWrapper>
     );
 };
+
+const PortfolioWrapper = styled.div`
+  height: 100vh;
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 50px;
+  padding-left: 10px;
+`;
+
+const DetailInfoWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
 
 export default Portfolio;
