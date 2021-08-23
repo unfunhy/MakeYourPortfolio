@@ -7,7 +7,7 @@ def createToken(id):
     return jwt.encode(
         {
             "id": id,
-            "exp": datetime.utcnow() + timedelta(minutes=10)
+            "exp": datetime.utcnow() + timedelta(minutes=60)
         },
         current_app.config["JWT_SECRET_KEY"],
         algorithm="HS256"

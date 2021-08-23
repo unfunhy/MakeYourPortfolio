@@ -19,7 +19,7 @@ def get_user_info(id):
     # 유저 id, name 확인용 api
     # token이 유효할 시 id, name 리턴
     '''
-    user = select_all_from_target_table(User, id, User.id)
+    user = select_all_from_target_table(User, User.id, id)
     return {"id": user.id, "name": user.name}
 
 
@@ -36,7 +36,7 @@ def login():
     if ";" in email or "--" in email:
         return abort(403, error_msg[Error.INVALID_DATA])
 
-    user = select_all_from_target_table(User, email, User.email)
+    user = select_all_from_target_table(User, User.email, email)
     if user is not None:
         if bcrypt.check_password_hash(user.user_pw, user_pw):
             return {
@@ -54,7 +54,7 @@ def check_email():
     # 회원가입 시 중복 아이디 확인용 api
     '''
     email = request.args.get("email")
-    if select_all_from_target_table(User, email, User.email):
+    if select_all_from_target_table(User, User.email, email):
         return abort(409, error_msg[Error.DUPLICATE_ID])
     return ''
 
@@ -69,7 +69,7 @@ def register():
     user_pw = bcrypt.generate_password_hash(raw_password)
     name = request.json.get("name")
 
-    if select_all_from_target_table(User, email, User.email):
+    if select_all_from_target_table(User, User.email, email):
         return abort(409, error_msg[Error.DUPLICATE_ID])
 
     db.session.add(User(email, user_pw, name))

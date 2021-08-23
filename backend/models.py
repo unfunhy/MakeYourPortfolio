@@ -12,10 +12,12 @@ class User(db.Model):
     register_date = db.Column(db.DateTime, default=datetime.utcnow)
     last_update = db.Column(db.DateTime)
 
-    def __init__(self, email, user_pw, name):
-        self.email = email
-        self.user_pw = user_pw
-        self.name = name
+    def update(self, data):
+        for key in data.keys():
+            self.key = data.get(key)
+
+    def __init__(self, data):
+        self.update(data)
 
     def to_dict(self):
         return {
@@ -27,6 +29,7 @@ class User(db.Model):
             "last_update": self.last_update,
         }
 
+
 class Education(db.Model):
     __tablename__ = "education"
     id = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
@@ -35,10 +38,15 @@ class Education(db.Model):
     major = db.Column(db.String(128), nullable=False)
     state = db.Column(db.SMALLINT, nullable=False)
 
-    def __init__(self, school, major, state):
-        self.school = school
-        self.major = major
-        self.state = state
+    def update(self, data):
+        for key in data.keys():
+            self.key = data.get(key)
+
+    def __init__(self, data):
+        # self.school = school
+        # self.major = major
+        # self.state = state
+        self.update(self, data)
     
     def to_dict(self):
         return {
@@ -55,9 +63,14 @@ class Award(db.Model):
     title = db.Column(db.String(128), nullable=False)
     desc = db.Column(db.Text(), nullable=False)
 
-    def __init__(self, title, desc):
-        self.title = title
-        self.desc = desc
+    def update(self, data):
+        for key in data.keys():
+            self.key = data.get(key)
+
+    def __init__(self, data):
+        # self.title = title
+        # self.desc = desc
+        self.update(data)
     
     def to_dict(self):
         return {
@@ -75,11 +88,18 @@ class Project(db.Model):
     start  = db.Column(db.DateTime, nullable=False)
     end  = db.Column(db.DateTime, nullable=False)
 
-    def __init__(self, title, desc, start, end):
-        self.title = title
-        self.desc = desc
-        self.start = start
-        self.end = end
+    def update(self, data):
+        for key in data.keys():
+            self.key = data.get(key)
+
+    def __init__(self, data):
+        self.update(data)
+
+    # def __init__(self, title, desc, start, end):
+    #     self.title = title
+    #     self.desc = desc
+    #     self.start = start
+    #     self.end = end
     
     def to_dict(self):
         return {
@@ -90,6 +110,7 @@ class Project(db.Model):
             "end": self.end,
         }
 
+
 class Certificate(db.Model):
     __tablename__ = "certificate"
     id = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
@@ -98,10 +119,17 @@ class Certificate(db.Model):
     auth = db.Column(db.String(128), nullable=False)
     acq_date = db.Column(db.DateTime, nullable=False)
 
-    def __init__(self, title, auth, acq_date):
-        self.title = title
-        self.auth = auth
-        self.acq_date = acq_date
+    def update(self, data):
+        for key in data.keys():
+            self.key = data.get(key)
+
+    def __init__(self, data):
+        self.update(data)
+
+    # def __init__(self, title, auth, acq_date):
+    #     self.title = title
+    #     self.auth = auth
+    #     self.acq_date = acq_date
     
     def to_dict(self):
         return {
