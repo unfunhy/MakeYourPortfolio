@@ -2,6 +2,12 @@ from db_connect import db
 from datetime import datetime
 
 class User(db.Model):
+    '''
+    # 업데이트 가능 항목: introduce, profile
+    # 특이사항: profile은 별도 관리
+    # 다른 테이블과 다르게 create와 update의 대상이 되는 column이 다르므로
+    # 별도의 init함수 작성
+    '''
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
     email = db.Column(db.String(32), nullable=False, unique=True)
@@ -12,21 +18,25 @@ class User(db.Model):
     register_date = db.Column(db.DateTime, default=datetime.utcnow)
     last_update = db.Column(db.DateTime)
 
+    def __set_column__(self, key, val):
+        if key == "introduce":
+            self.introduce = val
+        elif key == "profile":
+            self.profile = val
+
     def update(self, data):
         for key in data.keys():
-            self.key = data.get(key)
+            self.__set_column__(key, data.get(key))
 
-    def __init__(self, data):
-        self.update(data)
+    def __init__(self, email, user_pw, name):
+        self.email = email
+        self.user_pw = user_pw
+        self.name = name
 
     def to_dict(self):
         return {
-            "id": self.id,
-            "email": self.email,
-            "name": self.name,
             "introduce": self.introduce,
             "profile": self.profile,
-            "last_update": self.last_update,
         }
 
 
@@ -38,14 +48,19 @@ class Education(db.Model):
     major = db.Column(db.String(128), nullable=False)
     state = db.Column(db.SMALLINT, nullable=False)
 
+    def __set_column__(self, key, val):
+        if key == "school":
+            self.school = val
+        elif key == "major":
+            self.major = val
+        elif key == "state":
+            self.state = val
+
     def update(self, data):
         for key in data.keys():
-            self.key = data.get(key)
+            self.__set_column__(key, data.get(key))
 
     def __init__(self, data):
-        # self.school = school
-        # self.major = major
-        # self.state = state
         self.update(self, data)
     
     def to_dict(self):
@@ -63,13 +78,17 @@ class Award(db.Model):
     title = db.Column(db.String(128), nullable=False)
     desc = db.Column(db.Text(), nullable=False)
 
+    def __set_column__(self, key, val):
+        if key == "title":
+            self.title = val
+        elif key == "desc":
+            self.desc = val
+
     def update(self, data):
         for key in data.keys():
-            self.key = data.get(key)
+            self.__set_column__(key, data.get(key))
 
     def __init__(self, data):
-        # self.title = title
-        # self.desc = desc
         self.update(data)
     
     def to_dict(self):
@@ -88,18 +107,22 @@ class Project(db.Model):
     start  = db.Column(db.DateTime, nullable=False)
     end  = db.Column(db.DateTime, nullable=False)
 
+    def __set_column__(self, key, val):
+        if key == "title":
+            self.title = val
+        elif key == "desc":
+            self.desc = val
+        elif key == "start":
+            self.start = val
+        elif key == "end":
+            self.end = val
+
     def update(self, data):
         for key in data.keys():
-            self.key = data.get(key)
+            self.__set_column__(key, data.get(key))
 
     def __init__(self, data):
         self.update(data)
-
-    # def __init__(self, title, desc, start, end):
-    #     self.title = title
-    #     self.desc = desc
-    #     self.start = start
-    #     self.end = end
     
     def to_dict(self):
         return {
@@ -119,17 +142,20 @@ class Certificate(db.Model):
     auth = db.Column(db.String(128), nullable=False)
     acq_date = db.Column(db.DateTime, nullable=False)
 
+    def __set_column__(self, key, val):
+        if key == "title":
+            self.title = val
+        elif key == "auth":
+            self.auth = val
+        elif key == "acq_date":
+            self.acq_date = val
+
     def update(self, data):
         for key in data.keys():
-            self.key = data.get(key)
+            self.__set_column__(key, data.get(key))
 
     def __init__(self, data):
         self.update(data)
-
-    # def __init__(self, title, auth, acq_date):
-    #     self.title = title
-    #     self.auth = auth
-    #     self.acq_date = acq_date
     
     def to_dict(self):
         return {

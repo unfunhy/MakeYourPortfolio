@@ -20,6 +20,7 @@ def get_user_info(id):
     # token이 유효할 시 id, name 리턴
     '''
     user = select_all_from_target_table(User, User.id, id)
+    user = user[0]
     return {"id": user.id, "name": user.name}
 
 
@@ -38,6 +39,7 @@ def login():
 
     user = select_all_from_target_table(User, User.email, email)
     if user is not None:
+        user = user[0]
         if bcrypt.check_password_hash(user.user_pw, user_pw):
             return {
                 "Authorization": createToken(user.id),
@@ -72,7 +74,13 @@ def register():
     if select_all_from_target_table(User, User.email, email):
         return abort(409, error_msg[Error.DUPLICATE_ID])
 
-    db.session.add(User(email, user_pw, name))
+    data = {
+        "email": email,
+        "user_pw": user_pw,
+        "name": name
+    }
+
+    db.session.add(User(data))
     try:
         db.session.commit()
     except:

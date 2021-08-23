@@ -1,5 +1,7 @@
-from os import abort
-from flask import request, Blueprint, jsonify
+import os
+import base64
+from flask import request, Blueprint, jsonify, abort, current_app
+from werkzeug.utils import secure_filename
 
 from models import User, Education, Award, Project, Certificate
 from db_connect import db
@@ -16,7 +18,6 @@ def get_portfolio_list():
     '''
     # network page API
     '''
-    
     search = request.args.get("search")
     
     users = User.query.filter(User.last_update != None and User.name.like("%{}%".format(search))).all()
@@ -25,9 +26,32 @@ def get_portfolio_list():
 
     return jsonify(data)
 
+def get_user_data(id):
+    user = select_all_from_target_table(User, User.id, id)[0]
+    data = user.to_dict()
+
+    dir = current_app.config["MYSQL_FILEDATA_DIR"]
+    filename = data.get("profile")
+    extension = filename.split('.')[-1]
+
+    #참고자료 - https://stackoverflow.com/questions/37225035/serialize-in-json-a-base64-encoded-data
+    with open(os.path.join(dir, filename), 'rb') as img:
+        byte_content = img.read()
+        base64_bytes = base64.b64encode(byte_content)
+        base64_string = base64_bytes.decode("utf-8")
+
+        imgURL = "data:image/{};base64, {}".format(extension, base64_string)
+        data["profile"] = imgURL
+    
+    return data
+
 def get_target_data(id, target_obj):
     func = target_obj.to_dict
-    lst = select_all_from_target_table(target_obj, target_obj.user_id, id)
+    column = target_obj.user_id
+
+    lst = select_all_from_target_table(target_obj, column, id)
+    print("get {} data ... ".format(target_obj), lst)
+    
     return list(map(func, lst))
 
 # user portfolio page API
@@ -36,10 +60,7 @@ def get_target_data(id, target_obj):
 def get_portfolio(id):
     data = {}
 
-    # user = select_all_from_target_table(User, User.id, id)
-    # data["user"] = user.to_dict()
-
-    data["user"] = get_target_data(id, User)
+    data["user"] = get_user_data(id)
     data["education"] = get_target_data(id, Education)
     data["award"] = get_target_data(id, Award)
     data["project"] = get_target_data(id, Project)
@@ -47,12 +68,63 @@ def get_portfolio(id):
 
     return data
 
+# portfolio user update API
+# introduce만 관리, profile은 별도의 api
+@portfolio.route("/portfolio/user", methods=["PATCH"])
+@jwt_required
+def update_portfolio_user(id):
+    data = request.json.get("user")
+
+    print("introduce update ...", data)
+
+    if data is None:
+        return abort(400)
+
+    target = select_all_from_target_table(User, User.id, id)[0]
+    target.update(data)
+
+
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        return abort(500, error_msg[Error.INTERNAL_DB_ERROR])
+
+    return '', 204
+
+@portfolio.route("/portfolio/profile", methods=["POST"])
+@jwt_required
+def update_portfolio_profile(id):
+    file = request.files.get("file")
+
+    if file is None or file.filename == "":
+        return abort(400)
+
+    dir = current_app.config["MYSQL_FILEDATA_DIR"]
+    os.makedirs(dir, exist_ok=True)
+    filename = "{}.{}".format(id, secure_filename(file.filename.split('.')[-1]))
+
+    file.save(os.path.join(dir, filename))
+
+    target = select_all_from_target_table(User, User.id, id)
+    target[0].profile = filename
+
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        return abort(500, error_msg[Error.INTERNAL_DB_ERROR])
+
+    return '', 204
+
 # portfolio update
 def update_portfolio(target_obj, target_str):
     data_list = request.json.get(target_str)
 
+    print(data_list)
+
     if data_list is None:
-        abort(400, "변경 데이터가 없습니다.")
+        return abort(400, "변경 데이터가 없습니다.")
 
     for data in data_list:
         exist = select_all_from_target_table(target_obj, target_obj.id, data.id)
@@ -68,12 +140,6 @@ def update_portfolio(target_obj, target_str):
         return abort(500, error_msg[Error.INTERNAL_DB_ERROR])
 
     return '', 204
-
-# portfolio user update API
-@portfolio.route("/portfolio/user", methods=["PATCH"])
-@jwt_required
-def update_portfolio_user(id):
-    return update_portfolio(User, "user")
 
 # portfolio education update API
 @portfolio.route("/portfolio/education", methods=["PATCH"])
