@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 
-import UserContext from "./UserContext";
-import { Card } from "./Card";
+import UserContext from "../UserContext";
+import * as Auth from "./Auth";
+import { Card } from "../Card";
 
 
 // ⑧ 정보통신서비스 제공자등은 개인정보취급자를 대상으로 다음 각 호의 사항을
@@ -32,6 +33,7 @@ const Register = () => {
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
+  const name = useRef();
 
   const [id_state, set_id_state] = useState(0);
 
@@ -58,32 +60,13 @@ const Register = () => {
   ];
 
   useEffect(() => {
-    const check_login = async () => {
-      try {
-        const res = await axios.get("/api/login");
-        setUser({ ...res.data });
-        if (user.id !== 0) {
-          history.push(`/portfolio/${user.id}`);
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    check_login();
+    if (user.id !== 0) history.push(`/portfolio/${user.id}`);
   }, []);
 
   useEffect(() => {
-    var timer = setTimeout(check_id, 1000);
+    var timer = setTimeout(check_email, 1000);
     return () => clearTimeout(timer);
   }, [id]);
-
-  useEffect(() => {
-    check_pw();
-  }, [pw]);
-
-  useEffect(() => {
-    check_confirm_pw();
-  }, [confirmPw]);
 
   const handleRegister = async () => {
     if (id_state != 1 || check_pw() != 1) return;
@@ -92,8 +75,9 @@ const Register = () => {
       const res = await axios.post(
         "/api/register",
         {
-          user_id: id,
+          email: id,
           user_pw: pw,
+          name: name.current.value,
         },
         {
           headers: {
@@ -101,17 +85,18 @@ const Register = () => {
           },
         }
       );
-      await setTimeout(() => history.push("/login"), 0);
+      history.push("/login");
     } catch (e) {
-      alert(e.response.data.message);
+      console.log(e);
+      alert(e.response.message);
     }
   };
 
-  const check_id = async () => {
+  const check_email = async () => {
     if (id.length == 0) return;
     if (regex_id.test(id)) {
       try {
-        await axios.get("/api/register", { params: { user_id: id } });
+        await axios.get("/api/register", { params: { email: id } });
         set_id_state(1);
       } catch (e) {
         console.log(e);
@@ -157,6 +142,10 @@ const Register = () => {
           onChange={(e) => setConfirmPw(e.target.value)}
         />
         {!check_confirm_pw() && <p>비밀번호가 일치하지 않습니다.</p>}
+        <label>이름</label>
+        <input
+          ref={name}
+        />
         <button onClick={handleRegister}>회원가입</button>
       </Card>
     </RegisterWrapper>
