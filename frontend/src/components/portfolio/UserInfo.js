@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
 import { getToken } from "../auth/Auth";
@@ -12,7 +12,7 @@ const ProfilePic = () => {
     const formData = new FormData();
     formData.append("file", file);
     try {
-      const res = await axios.post("/api/portfolio/profile", formData, {
+      await axios.post("/api/portfolio/profile", formData, {
         headers: {
           "Content-Type": `multipart/form-data`,
           Authorization: getToken(),
@@ -61,13 +61,9 @@ const ProfilePic = () => {
         <label htmlFor="file">
           <RoundImg
             src={imgSrc}
-            onError={(e) => {
-              console.log("error!!!");
-              e.target.src = "/images/default_img.png";
-            }}
+            onError={(e) => (e.target.src = "/images/default_img.png")}
           />
         </label>
-
         <input
           type="file"
           id="file"
@@ -87,7 +83,7 @@ const UserInfo = ({ canEdit, data, username }) => {
   const [input, setInput] = useState(data);
 
   const handleEdit = (e) => {
-    setEditMode(true);
+    setEditMode(!editMode);
   };
 
   const handleChange = (e) => {
@@ -101,7 +97,7 @@ const UserInfo = ({ canEdit, data, username }) => {
   // submit
   const handleSubmit = async () => {
     try {
-      const res = await axios.patch(
+      await axios.patch(
         "/api/portfolio/user",
         {
           user: input,
@@ -117,7 +113,6 @@ const UserInfo = ({ canEdit, data, username }) => {
       alert(e.response.data);
       return;
     }
-
     setEditMode(false);
   };
 
@@ -129,7 +124,8 @@ const UserInfo = ({ canEdit, data, username }) => {
         handleChange={handleChange}
         editMode={editMode}
         data={input.introduce}
-        tag_name="introduce"
+        tagName="introduce"
+        placeHoler="한 줄 소개"
       />
       {canEdit === true && (
         <ButtonTag
@@ -165,21 +161,3 @@ const UserInfoWrapper = styled.div`
 
 
 export default UserInfo;
-
-// 전송 데이터 형태
-/*
-    {
-      "table": [
-        {
-          id,
-          ...,
-          ...,
-        },
-        {
-          id,
-          ...,
-          ...,
-        }
-      ]
-    }
-  */

@@ -7,6 +7,10 @@ import UserContext from "../UserContext";
 import { Card } from "../Card";
 import UserInfo from "./UserInfo";
 import { getToken, removeToken } from "../auth/Auth";
+import EducationInfo from "./EducationInfo";
+import AwardInfo from "./AwardInfo";
+import ProjectInfo from "./ProjectInfo";
+import CertificateInfo from "./CertificateInfo";
 
 const Portfolio = (props) => {
   const id = parseInt(props.match.params.user_id);
@@ -57,11 +61,7 @@ const Portfolio = (props) => {
     # 2. user.id가 0인 경우(새로고침 등의 이유로 context가 초기화된 경우)
     #    userInfo 요청 후 portfolio data 요청
     */
-    if (user.id !== 0) {
-      getData();
-      getProfileData();
-    }
-    else {
+    if (user.id === 0) {
       const getUser = async () => {
         try {
           const userInfo = await axios.get("/api/login", {
@@ -79,9 +79,9 @@ const Portfolio = (props) => {
         }
       };
       getUser();
-      getProfileData();
-      getData();
     }
+    getProfileData();
+    getData();
   }, []);
 
   if (Object.keys(data).length === 0 || user.id === 0 || !profileReady)
@@ -94,7 +94,6 @@ const Portfolio = (props) => {
             <UserInfo
               canEdit={user.id === id}
               data={{
-                //id: user.id,
                 introduce: data.user.introduce,
                 //profile: data.user.profile,
               }}
@@ -104,19 +103,28 @@ const Portfolio = (props) => {
         </UserInfoWrapper>
         <DetailInfoWrapper>
           <Card width="600px" height="auto">
-            <p>asdfasdf</p>
+            <EducationInfo
+              canEdit={user.id === id}
+              data={data.education}
+            />
           </Card>
           <Card width="600px" height="auto">
-            <p>asdfasdf</p>
+            <AwardInfo
+              canEdit={user.id === id}
+              data={data.award}
+            />
           </Card>
           <Card width="600px" height="auto">
-            <p>asdfasdf</p>
+            <ProjectInfo
+              canEdit={user.id === id}
+              data={data.project}
+            />
           </Card>
           <Card width="600px" height="auto">
-            <p>asdfasdf</p>
-          </Card>
-          <Card width="600px" height="auto">
-            <p>asdfasdf</p>
+            <CertificateInfo
+              canEdit={user.id === id}
+              data={data.certificate}
+            />
           </Card>
         </DetailInfoWrapper>
       </PortfolioWrapper>

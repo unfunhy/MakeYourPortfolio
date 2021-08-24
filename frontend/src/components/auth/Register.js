@@ -4,7 +4,6 @@ import axios from "axios";
 import styled from "styled-components";
 
 import UserContext from "../UserContext";
-import * as Auth from "./Auth";
 import { Card } from "../Card";
 
 // ⑧ 정보통신서비스 제공자등은 개인정보취급자를 대상으로 다음 각 호의 사항을
@@ -62,10 +61,10 @@ const Register = () => {
   }, [id]);
 
   const handleRegister = async () => {
-    if (id_state != 1 || check_pw() != 1) return;
+    if (id_state !== 1 || check_pw() !== 1) return;
 
     try {
-      const res = await axios.post(
+      await axios.post(
         "/api/register",
         {
           email: id,
@@ -86,7 +85,7 @@ const Register = () => {
   };
 
   const check_email = async () => {
-    if (id.length == 0) return;
+    if (id.length === 0) return;
     if (regex_id.test(id)) {
       try {
         await axios.get("/api/register", { params: { email: id } });

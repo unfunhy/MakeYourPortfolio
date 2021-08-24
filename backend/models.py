@@ -55,13 +55,15 @@ class Education(db.Model):
             self.major = val
         elif key == "state":
             self.state = val
+        elif key == "user_id":
+            self.user_id = val
 
     def update(self, data):
         for key in data.keys():
             self.__set_column__(key, data.get(key))
 
     def __init__(self, data):
-        self.update(self, data)
+        self.update(data)
     
     def to_dict(self):
         return {
@@ -83,6 +85,8 @@ class Award(db.Model):
             self.title = val
         elif key == "desc":
             self.desc = val
+        elif key == "user_id":
+            self.user_id = val
 
     def update(self, data):
         for key in data.keys():
@@ -104,8 +108,8 @@ class Project(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     title = db.Column(db.String(128), nullable=False)
     desc = db.Column(db.Text(), nullable=False)
-    start  = db.Column(db.DateTime, nullable=False)
-    end  = db.Column(db.DateTime, nullable=False)
+    start  = db.Column(db.Date, nullable=False)
+    end  = db.Column(db.Date, nullable=False)
 
     def __set_column__(self, key, val):
         if key == "title":
@@ -116,6 +120,8 @@ class Project(db.Model):
             self.start = val
         elif key == "end":
             self.end = val
+        elif key == "user_id":
+            self.user_id = val
 
     def update(self, data):
         for key in data.keys():
@@ -140,7 +146,7 @@ class Certificate(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     title = db.Column(db.String(128), nullable=False)
     auth = db.Column(db.String(128), nullable=False)
-    acq_date = db.Column(db.DateTime, nullable=False)
+    acq_date = db.Column(db.Date, nullable=False)
 
     def __set_column__(self, key, val):
         if key == "title":
@@ -149,6 +155,8 @@ class Certificate(db.Model):
             self.auth = val
         elif key == "acq_date":
             self.acq_date = val
+        elif key == "user_id":
+            self.user_id = val
 
     def update(self, data):
         for key in data.keys():

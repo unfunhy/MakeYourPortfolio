@@ -2,6 +2,9 @@ import os
 import base64
 from flask import request, Blueprint, jsonify, abort, current_app
 from werkzeug.utils import secure_filename
+import dateutil.parser as dt
+import time
+import pytz
 
 from models import User, Education, Award, Project, Certificate
 from db_connect import db
@@ -26,12 +29,23 @@ def get_portfolio_list():
 
     return jsonify(data)
 
+def datetime_to_timestamp(data_list, keys):
+    for data in data_list:
+        for key in keys:
+            data[key] = time.mktime(data[key].timetuple()) * 1000
+
 def get_target_data(id, target_obj):
     func = target_obj.to_dict
     column = target_obj.user_id
     lst = select_all_from_target_table(target_obj, column, id)
-    
-    return list(map(func, lst))
+
+    ret = list(map(func, lst))
+    if target_obj == Project:
+        datetime_to_timestamp(ret, ["start", "end"])
+    elif target_obj == Certificate:
+        datetime_to_timestamp(ret, ["acq_date"])
+
+    return ret
 
 # user portfolio page API
 @portfolio.route("/portfolio", methods=["GET"])
@@ -118,20 +132,30 @@ def update_portfolio_profile(id):
 
     return '', 204
 
+def convert_datetime_format(data_list, keys):
+    for data in data_list:
+        for key in keys:
+            data[key] = dt.parse(data[key]).astimezone(tz=pytz.timezone("Asia/Seoul"))
+
 # portfolio update
-def update_portfolio(target_obj, target_str):
+def update_portfolio(target_obj, target_str, user_id):
     data_list = request.json.get(target_str)
 
-    print(data_list)
-
+    print("cur data list ... ", data_list)
+    if target_obj == Project:
+        convert_datetime_format(data_list, ["start", "end"])
+    elif target_obj == Certificate:
+        convert_datetime_format(data_list, ["acq_date"])
+    print("converted data ... ", data_list)
     if data_list is None:
         return abort(400, "변경 데이터가 없습니다.")
 
     for data in data_list:
-        exist = select_all_from_target_table(target_obj, target_obj.id, data.id)
-        if exist is not None:
-            exist.update(data)
+        exist = select_all_from_target_table(target_obj, target_obj.id, data.get("id"))
+        if len(exist) != 0:
+            exist[0].update(data)
         else:
+            data["user_id"] = user_id
             db.session.add(target_obj(data))
 
     try:
@@ -146,22 +170,22 @@ def update_portfolio(target_obj, target_str):
 @portfolio.route("/portfolio/education", methods=["PATCH"])
 @jwt_required
 def update_portfolio_education(id):
-    return update_portfolio(Education, "education")
+    return update_portfolio(Education, "education", id)
 
 # portfolio award update API
 @portfolio.route("/portfolio/award", methods=["PATCH"])
 @jwt_required
 def update_portfolio_award(id):
-    return update_portfolio(Award, "award")
+    return update_portfolio(Award, "award", id)
 
 # portfolio project update API
 @portfolio.route("/portfolio/project", methods=["PATCH"])
 @jwt_required
 def update_portfolio_project(id):
-    return update_portfolio(Project, "project")
+    return update_portfolio(Project, "project", id)
 
 # portfolio cert update API
 @portfolio.route("/portfolio/certificate", methods=["PATCH"])
 @jwt_required
 def update_portfolio_cert(id):
-    return update_portfolio(Certificate, "certificate")
+    return update_portfolio(Certificate, "certificate", id)

@@ -51,8 +51,8 @@ Table Project {
     user_id,     (int, fk)  
     title,       (varchar(128))  
     desc,        (text)  
-    start,       (datetime)  
-    end,         (datetime)  
+    start,       (date)  
+    end,         (date)  
 }  
 ```
 
@@ -62,7 +62,7 @@ Table Certificate {
     user_id,     (int, fk)  
     title,       (varchar(128))  
     auth,        (varchar(128))  
-    acq_date     (datetime)  
+    acq_date     (date)  
 }  
 ```
 
