@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
 import { getToken } from "../auth/Auth";
-import { PinputTag, ButtonTag } from "./PortfolioUtil";
+import { PinputTag, ButtonTag, Ptag } from "./PortfolioUtil";
 import * as FormData from "form-data";
 
-const ProfilePic = ({ initImgSrc }) => {
-  const [imgSrc, setImgSrc] = useState(initImgSrc);
+const ProfilePic = () => {
+  const [imgSrc, setImgSrc] = useState(localStorage.getItem("profile-img"));
 
   const upload = async (file) => {
     const formData = new FormData();
@@ -48,6 +48,7 @@ const ProfilePic = ({ initImgSrc }) => {
     const reader = new FileReader();
     reader.onload = () => {
       setImgSrc(reader.result);
+      localStorage.setItem("profile-img", reader.result);
       upload(file);
     };
 
@@ -83,7 +84,7 @@ const ProfilePic = ({ initImgSrc }) => {
 //좌상단 프로필 영역
 const UserInfo = ({ canEdit, data, username }) => {
   const [editMode, setEditMode] = useState(false);
-  const [input, setInput] = useState({ introduce: data.introduce });
+  const [input, setInput] = useState(data);
 
   const handleEdit = (e) => {
     setEditMode(true);
@@ -114,7 +115,6 @@ const UserInfo = ({ canEdit, data, username }) => {
       );
     } catch (e) {
       alert(e.response.data);
-      //console.log(e.response);
       return;
     }
 
@@ -122,25 +122,23 @@ const UserInfo = ({ canEdit, data, username }) => {
   };
 
   return (
-    <div>
-      <ProfilePic initImgSrc={data.profile} />
-      <div>
-        <p>{username}</p>
-        <PinputTag
-          handleChange={handleChange}
+    <UserInfoWrapper>
+      <ProfilePic />
+      <Ptag>{username}</Ptag>
+      <PinputTag
+        handleChange={handleChange}
+        editMode={editMode}
+        data={input.introduce}
+        tag_name="introduce"
+      />
+      {canEdit === true && (
+        <ButtonTag
           editMode={editMode}
-          data={input.introduce}
-          tag_name="introduce"
+          handleEdit={handleEdit}
+          handleSubmit={handleSubmit}
         />
-        {canEdit === true && (
-          <ButtonTag
-            editMode={editMode}
-            handleEdit={handleEdit}
-            handleSubmit={handleSubmit}
-          />
-        )}
-      </div>
-    </div>
+      )}
+    </UserInfoWrapper>
   );
 };
 
@@ -156,6 +154,15 @@ const RoundImg = styled.img`
   height: 100%;
   object-fit: cover;
 `;
+
+const UserInfoWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+`;
+
+
 
 export default UserInfo;
 

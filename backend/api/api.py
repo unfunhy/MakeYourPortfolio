@@ -26,31 +26,10 @@ def get_portfolio_list():
 
     return jsonify(data)
 
-def get_user_data(id):
-    user = select_all_from_target_table(User, User.id, id)[0]
-    data = user.to_dict()
-
-    dir = current_app.config["MYSQL_FILEDATA_DIR"]
-    filename = data.get("profile")
-    extension = filename.split('.')[-1]
-
-    #참고자료 - https://stackoverflow.com/questions/37225035/serialize-in-json-a-base64-encoded-data
-    with open(os.path.join(dir, filename), 'rb') as img:
-        byte_content = img.read()
-        base64_bytes = base64.b64encode(byte_content)
-        base64_string = base64_bytes.decode("utf-8")
-
-        imgURL = "data:image/{};base64, {}".format(extension, base64_string)
-        data["profile"] = imgURL
-    
-    return data
-
 def get_target_data(id, target_obj):
     func = target_obj.to_dict
     column = target_obj.user_id
-
     lst = select_all_from_target_table(target_obj, column, id)
-    print("get {} data ... ".format(target_obj), lst)
     
     return list(map(func, lst))
 
@@ -60,7 +39,7 @@ def get_target_data(id, target_obj):
 def get_portfolio(id):
     data = {}
 
-    data["user"] = get_user_data(id)
+    data["user"] = select_all_from_target_table(User, User.id, id)[0].to_dict()
     data["education"] = get_target_data(id, Education)
     data["award"] = get_target_data(id, Award)
     data["project"] = get_target_data(id, Project)
@@ -75,14 +54,11 @@ def get_portfolio(id):
 def update_portfolio_user(id):
     data = request.json.get("user")
 
-    print("introduce update ...", data)
-
     if data is None:
         return abort(400)
 
     target = select_all_from_target_table(User, User.id, id)[0]
     target.update(data)
-
 
     try:
         db.session.commit()
@@ -91,6 +67,31 @@ def update_portfolio_user(id):
         return abort(500, error_msg[Error.INTERNAL_DB_ERROR])
 
     return '', 204
+
+@portfolio.route("/portfolio/profile", methods=["GET"])
+@jwt_required
+def get_portfolio_profile(id):
+    data = select_all_from_target_table(User, User.id, id)[0]
+
+    filename = data.profile
+    if filename is None:
+        return abort(400)
+
+    dir = current_app.config["MYSQL_FILEDATA_DIR"]
+    extension = filename.split('.')[-1]
+
+    #참고자료 - https://stackoverflow.com/questions/37225035/serialize-in-json-a-base64-encoded-data
+    with open(os.path.join(dir, filename), 'rb') as img:
+        byte_content = img.read()
+        base64_bytes = base64.b64encode(byte_content)
+        base64_string = base64_bytes.decode("utf-8")
+
+        imgURL = "data:image/{};base64, {}".format(extension, base64_string)
+        ret = {}
+        ret["profile"] = imgURL
+    
+    return ret
+
 
 @portfolio.route("/portfolio/profile", methods=["POST"])
 @jwt_required
