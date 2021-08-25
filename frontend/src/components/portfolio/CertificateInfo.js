@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
 import { getToken, removeToken } from "../auth/Auth";
@@ -74,6 +74,10 @@ const CertificateInfo = ({ canEdit, data }) => {
   const [input, setInput] = useState(data);
   const [editMode, setEditMode] = useState(false);
   const [createdTmpKey, setCreatedTmpKey] = useState(-1);
+
+  useEffect(()=>{
+    setInput(data);
+  }, [data])
 
   const returnValidData = () => {
     data = input.filter((el) => {

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 
 import UserContext from "../UserContext";
 import { Card } from "../Card";
-import UserInfo from "./UserInfo";
 import { getToken, removeToken } from "../auth/Auth";
+import UserInfo from "./UserInfo";
 import EducationInfo from "./EducationInfo";
 import AwardInfo from "./AwardInfo";
 import ProjectInfo from "./ProjectInfo";
@@ -14,118 +14,106 @@ import CertificateInfo from "./CertificateInfo";
 
 const Portfolio = (props) => {
   const id = parseInt(props.match.params.user_id);
-
   const { user, setUser } = useContext(UserContext);
   const [data, setData] = useState({});
-  const [profileReady, setProfileReady] = useState(false);
+  const [profileImg, setProfileImg] = useState("");
   const history = useHistory();
 
   const getData = async () => {
-    if (Object.keys(data).length === 0) {
-      try {
-        const res = await axios.get("/api/portfolio", {
-          headers: { Authorization: getToken() },
-        });
-        console.log("response data ...", res.data);
-        setData(res.data);
-      } catch (e) {
-        console.log(e);
+    try {
+      const res = await axios.get("/api/portfolio", {
+        headers: { Authorization: getToken() },
+        params: { id: id },
+      });
+      console.log("response data ...", res.data);
+      setData(res.data);
+    } catch (e) {
+      if (e.response.status == 401) {
+        removeToken(history, 1);
       }
     }
   };
 
   const getProfileData = async () => {
     /*
-    # profile 데이터를 받아서 localstorage에 저장하고
-    # profileReady state를 true로 바꿔 저장이 완료되었음을 알림
+    # 해당 사용자 데이터라면 localstorage에 저장 및 사용
+    # 아니라면 매번 데이터 요청
     */
-    if (localStorage.getItem("profile-img") === null) {
-      try {
-        const res = await axios.get("/api/portfolio/profile", {
-          headers: { Authorization: getToken() },
-        });
-        localStorage.setItem("profile-img", res.data.profile);
-      } catch (e) {
-        console.log(e);
-        localStorage.setItem("profile-img", "empty");
+    if (user.id == 0) return;
+
+    if (user.id == id) {
+      const localData = localStorage.getItem(`profile-img-${id}`);
+      if (localData !== null) {
+        setProfileImg(localData);
+        return;
       }
     }
-    setProfileReady(true);
+
+    try {
+      const res = await axios.get("/api/portfolio/profile", {
+        headers: { Authorization: getToken() },
+        params: { id: id },
+      });
+      setProfileImg(res.data.profile);
+      if (user.id == id)
+        localStorage.setItem(`profile-img-${id}`, res.data.profile);
+    } catch (e) {
+      if (user.id == id) localStorage.setItem(`profile-img-${id}`, "empty");
+      console.log(e);
+    }
   };
 
   useEffect(() => {
-    /* 
-    # componentDidMount
-    # 
-    # 1. user.id가 0이 아닌 경우 portfolio data 요청
-    # 2. user.id가 0인 경우(새로고침 등의 이유로 context가 초기화된 경우)
-    #    userInfo 요청 후 portfolio data 요청
-    */
-    if (user.id === 0) {
-      const getUser = async () => {
-        try {
-          const userInfo = await axios.get("/api/login", {
-            headers: { Authorization: getToken() },
-          });
-          //useContext가 의미가 있나 확인 필요
-          //refresh할 때 마다 초기화 됨 -> 결국 서버에서 id, name 다시 얻어와야함
-          //그럼 전역을 쓰는 이유가 무엇? 그냥 useState쓰면 안되나
-          setUser({ id: userInfo.data.id, name: userInfo.data.name });
-        } catch (e) {
-          removeToken(history, 1);
-          return;
-        }
-      };
-      getUser();
-    }
-    getProfileData();
     getData();
   }, []);
 
-  if (Object.keys(data).length === 0 || user.id === 0 || !profileReady)
-    return <div style={{paddingTop: 100}}>로딩 중...</div>;
+  useEffect(() => {
+    getProfileData();
+  }, [user]);
+
+  // Navigation을 통해 portfolio -> portfolio이동 시 데이터 재설정
+  useEffect(()=>{
+    getData();
+    getProfileData();
+  }, [id]);
+
+  if (Object.keys(data).length === 0 || user.id === 0)
+    return <div>로딩 중...</div>;
   else
     return (
       <PortfolioWrapper>
         <PortfolioMainFrame>
-        <UserInfoWrapper>
-          <Card width="228px" height="auto" style={{marginRight: 10}}>
-            <UserInfo
-              canEdit={user.id === id}
-              data={{
-                introduce: data.user.introduce,
-                //profile: data.user.profile,
-              }}
-              username={user.name}
-            />
-          </Card>
-        </UserInfoWrapper>
-        <DetailInfoWrapper>
-          <Card width="600px" height="auto">
-            <EducationInfo
-              canEdit={user.id === id}
-              data={data.education}
-            />
-          </Card>
-          <Card width="600px" height="auto">
-            <AwardInfo
-              canEdit={user.id === id}
-              data={data.award}
-            />
-          </Card>
-          <Card width="600px" height="auto">
-            <ProjectInfo
-              canEdit={user.id === id}
-              data={data.project}
-            />
-          </Card>
-          <Card width="600px" height="auto">
-            <CertificateInfo
-              canEdit={user.id === id}
-              data={data.certificate}
-            />
-          </Card>
-        </DetailInfoWrapper>
+          <UserInfoWrapper>
+            <Card width="228px" height="auto" style={{ marginRight: 10 }}>
+              <UserInfo
+                id={id}
+                canEdit={user.id === id}
+                data={{
+                  introduce: data.user.introduce,
+                  profile: profileImg,
+                  setProfile: setProfileImg,
+                }}
+                username={data.user.name}
+              />
+            </Card>
+          </UserInfoWrapper>
+          <DetailInfoWrapper>
+            <Card width="600px" height="auto">
+              <EducationInfo canEdit={user.id === id} data={data.education} />
+            </Card>
+            <Card width="600px" height="auto">
+              <AwardInfo canEdit={user.id === id} data={data.award} />
+            </Card>
+            <Card width="600px" height="auto">
+              <ProjectInfo canEdit={user.id === id} data={data.project} />
+            </Card>
+            <Card width="600px" height="auto">
+              <CertificateInfo
+                canEdit={user.id === id}
+                data={data.certificate}
+              />
+            </Card>
+          </DetailInfoWrapper>
         </PortfolioMainFrame>
       </PortfolioWrapper>
     );
@@ -138,7 +126,7 @@ const PortfolioMainFrame = styled.div`
   width: 888px;
   box-sizing: border-box;
   padding: 10px;
-  background-color: #DAD0C2;
+  background-color: #dad0c2;
   border-radius: 20px;
   margin-top: 20px;
   margin-bottom: 20px;
@@ -146,7 +134,7 @@ const PortfolioMainFrame = styled.div`
 `;
 
 const PortfolioWrapper = styled.div`
-  height: 100%;
+  height: 100%auto;
   display: flex;
   justify-content: center;
   padding-top: 50px;
@@ -156,10 +144,9 @@ const PortfolioWrapper = styled.div`
 const DetailInfoWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  padding-bottom: 7px;
 `;
 
-const UserInfoWrapper = styled.div`
-
-`;
+const UserInfoWrapper = styled.div``;
 
 export default Portfolio;

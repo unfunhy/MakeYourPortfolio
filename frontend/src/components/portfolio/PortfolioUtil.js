@@ -66,13 +66,15 @@ const BtnTagWrapper = styled.div`
   padding-right: 5px;
 `;
 
-const BtnTag = styled.button`
+export const BtnTag = styled.button`
   width: 30px;
   height: 30px;
   background-color: white;
   border: 2px solid lightgray;
   border-radius: 5px;
   box-shadow: 3px 2px 2px gray;
+  font-size: 14px;
+
   + button {
     margin-left: 10px;
   }

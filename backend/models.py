@@ -28,15 +28,16 @@ class User(db.Model):
         for key in data.keys():
             self.__set_column__(key, data.get(key))
 
-    def __init__(self, email, user_pw, name):
-        self.email = email
-        self.user_pw = user_pw
-        self.name = name
+    def __init__(self, data):
+        self.email = data.get("email")
+        self.user_pw = data.get("user_pw")
+        self.name = data.get("name")
 
     def to_dict(self):
         return {
+            "id": self.id,
+            "name": self.name,
             "introduce": self.introduce,
-            #"profile": self.profile,
         }
 
 

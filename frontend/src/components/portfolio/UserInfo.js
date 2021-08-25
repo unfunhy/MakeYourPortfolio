@@ -1,89 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
-import * as FormData from "form-data";
+import { useHistory } from "react-router-dom";
 
 import { getToken, removeToken } from "../auth/Auth";
 import { PinputTag, ButtonTag, Ptag } from "./PortfolioUtil";
-import { useHistory } from "react-router-dom";
-
-const ProfilePic = () => {
-  const [imgSrc, setImgSrc] = useState(localStorage.getItem("profile-img"));
-
-  const upload = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    try {
-      await axios.post("/api/portfolio/profile", formData, {
-        headers: {
-          "Content-Type": `multipart/form-data`,
-          Authorization: getToken(),
-        },
-      });
-    } catch (e) {
-      alert(e);
-    }
-  };
-
-  const handleChange = async (e) => {
-    const possible_format = [
-      "image/png",
-      "image/jpg",
-      "image/jpeg",
-      "image/gif",
-    ];
-
-    const file = e.target.files[0];
-    if (file === undefined) return;
-    console.log(file);
-    // 2MB 초과 시 alert
-    if (file.size > 2 * (2 << 20)) {
-      alert("프로필 사진은 2MB를 초과할 수 없습니다.");
-      return;
-    }
-    // 확장자 검사
-    if (!possible_format.includes(file.type)) {
-      alert("프로필 사진은 png, jpg, jpeg, gif 확장자만 가능합니다.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImgSrc(reader.result);
-      localStorage.setItem("profile-img", reader.result);
-      upload(file);
-    };
-
-    reader.readAsDataURL(file);
-  };
-
-  return (
-    <ImgContainer>
-      <form>
-        <label htmlFor="file">
-          <RoundImg
-            src={imgSrc}
-            onError={(e) => (e.target.src = "/images/default_img.png")}
-          />
-        </label>
-        <input
-          type="file"
-          id="file"
-          name="file"
-          accept=".png, .jpg, .jpeg, .gif"
-          style={{ display: "none" }}
-          onChange={handleChange}
-        />
-      </form>
-    </ImgContainer>
-  );
-};
+import { EditableProfileImg } from "../PofileImg";
 
 //좌상단 프로필 영역
-const UserInfo = ({ canEdit, data, username }) => {
+const UserInfo = ({ id, canEdit, data, username }) => {
   const history = useHistory();
   const [editMode, setEditMode] = useState(false);
-  const [input, setInput] = useState(data);
+  const [input, setInput] = useState({introduce: data.introduce});
+
+  useEffect(()=>{
+    setInput(data);
+  }, [data])
 
   const handleEdit = (e) => {
     setEditMode(!editMode);
@@ -123,7 +55,11 @@ const UserInfo = ({ canEdit, data, username }) => {
 
   return (
     <UserInfoWrapper>
-      <ProfilePic />
+      <EditableProfileImg
+        id={id}
+        profile={data.profile}
+        setProfile={data.setProfile}
+      />
       <Ptag style={{
         fontWeight: "bold", 
         fontSize: "20px",
@@ -148,20 +84,6 @@ const UserInfo = ({ canEdit, data, username }) => {
     </UserInfoWrapper>
   );
 };
-
-const ImgContainer = styled.div`
-  width: 128px;
-  height: 128px;
-  border-radius: 70%;
-  margin-top: 15px;
-  overflow: hidden;
-`;
-
-const RoundImg = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-`;
 
 const UserInfoWrapper = styled.div`
   display: flex;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styled from "styled-components";
 import DatePicker from "react-datepicker";
@@ -14,7 +14,6 @@ const ProjectUnit = (props) => {
   };
 
   const handleStartChangeWithIndex = (e) => {
-    console.log("cur e ... ", e, typeof(e));
     props.handleChange(
       {
         target: {
@@ -117,6 +116,10 @@ const ProjectInfo = ({ canEdit, data }) => {
   const [input, setInput] = useState(data);
   const [editMode, setEditMode] = useState(false);
   const [createdTmpKey, setCreatedTmpKey] = useState(-1);
+
+  useEffect(()=>{
+    setInput(data);
+  }, [data])
 
   const returnValidData = () => {
     data = input.filter((el) => {

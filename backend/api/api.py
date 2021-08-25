@@ -15,6 +15,10 @@ from ErrorManager import Error, error_msg
 
 portfolio = Blueprint('portfolio', __name__, url_prefix="/api")
 
+def select_all_from_user_like(search):
+    if len(search) < 2: 
+        return select_all_from_target_table(User)
+    return User.query.filter(User.name.like("%{}%".format(search))).all()
 
 @portfolio.route("/portfolios", methods=["GET"])
 def get_portfolio_list():
@@ -22,10 +26,35 @@ def get_portfolio_list():
     # network page API
     '''
     search = request.args.get("search")
-    
-    users = User.query.filter(User.last_update != None and User.name.like("%{}%".format(search))).all()
+    users = select_all_from_user_like(search)
     func = User.to_dict
-    data = list(map(func, users))
+    return jsonify(list(map(func, users)))
+
+@portfolio.route("/portfolios/profile", methods=["GET"])
+def get_portfolio_profile_list():
+    '''
+    # network page API for profile img
+    '''
+    search = request.args.get("search")
+    users = select_all_from_user_like(search)
+    data = []
+
+    for user in users:
+        filename = user.profile
+        if filename is None:
+            data.append("")
+            continue
+
+        dir = current_app.config["MYSQL_FILEDATA_DIR"]
+        extension = filename.split('.')[-1]
+
+        with open(os.path.join(dir, filename), 'rb') as img:
+            byte_content = img.read()
+            base64_bytes = base64.b64encode(byte_content)
+            base64_string = base64_bytes.decode("utf-8")
+
+            imgURL = "data:image/{};base64, {}".format(extension, base64_string)
+            data.append(imgURL)
 
     return jsonify(data)
 
@@ -33,6 +62,8 @@ def datetime_to_timestamp(data_list, keys):
     for data in data_list:
         for key in keys:
             data[key] = time.mktime(data[key].timetuple()) * 1000
+
+
 
 def get_target_data(id, target_obj):
     func = target_obj.to_dict
@@ -50,7 +81,8 @@ def get_target_data(id, target_obj):
 # user portfolio page API
 @portfolio.route("/portfolio", methods=["GET"])
 @jwt_required
-def get_portfolio(id):
+def get_portfolio(_id):
+    id = request.args.get("id")
     data = {}
 
     data["user"] = select_all_from_target_table(User, User.id, id)[0].to_dict()
@@ -84,7 +116,8 @@ def update_portfolio_user(id):
 
 @portfolio.route("/portfolio/profile", methods=["GET"])
 @jwt_required
-def get_portfolio_profile(id):
+def get_portfolio_profile(_id):
+    id = request.args.get("id")
     data = select_all_from_target_table(User, User.id, id)[0]
 
     filename = data.profile
@@ -101,8 +134,7 @@ def get_portfolio_profile(id):
         base64_string = base64_bytes.decode("utf-8")
 
         imgURL = "data:image/{};base64, {}".format(extension, base64_string)
-        ret = {}
-        ret["profile"] = imgURL
+        ret = {"profile": imgURL}
     
     return ret
 
