@@ -4,8 +4,9 @@ import styled from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-import { getToken } from "../auth/Auth";
-import { PinputTag, ButtonTag, Ptag } from "./PortfolioUtil";
+import { getToken, removeToken } from "../auth/Auth";
+import { PinputTag, ButtonTag, Ptag, InputTag, LiTag, UlTag, PtextTag } from "./PortfolioUtil";
+import { useHistory } from "react-router-dom";
 
 const ProjectUnit = (props) => {
   const handleChangeWithIndex = (e) => {
@@ -55,7 +56,7 @@ const ProjectUnit = (props) => {
   };
 
   return (
-    <div>
+    <>
       <PinputTag
         index={props.index}
         handleChange={handleChangeWithIndex}
@@ -64,7 +65,7 @@ const ProjectUnit = (props) => {
         tagName="title"
         placeHolder="프로젝트 이름"
       />
-      <PinputTag
+      <PtextTag
         index={props.index}
         handleChange={handleChangeWithIndex}
         editMode={props.editMode}
@@ -81,6 +82,12 @@ const ProjectUnit = (props) => {
             startDate={props.input.start}
             endDate={props.input.end}
             dateFormat="yyyy년 M월 d일"
+            customInput={<InputTag style={{
+              width: "100%", 
+              textAlign: "center",
+              padding: 0,
+              marginTop: 0
+            }}/>}
           />
           <DatePicker
             selected={props.input.end}
@@ -90,16 +97,23 @@ const ProjectUnit = (props) => {
             endDate={props.input.end}
             minDate={props.input.start}
             dateFormat="yyyy년 M월 d일"
+            customInput={<InputTag style={{
+              width: "100%", 
+              textAlign: "center",
+              padding: 0,
+              marginTop: 0
+            }}/>}
           />
         </DatePickerContainer>
       ) : (
         <Ptag>{dateToString()}</Ptag>
       )}
-    </div>
+    </>
   );
 };
 
 const ProjectInfo = ({ canEdit, data }) => {
+  const history = useHistory();
   const [input, setInput] = useState(data);
   const [editMode, setEditMode] = useState(false);
   const [createdTmpKey, setCreatedTmpKey] = useState(-1);
@@ -159,7 +173,6 @@ const ProjectInfo = ({ canEdit, data }) => {
   const handleSubmit = async () => {
     data = convertTimeformat();
     setInput(data);
-    console.log("post data ...", data);
 
     try {
       await axios.patch(
@@ -175,7 +188,9 @@ const ProjectInfo = ({ canEdit, data }) => {
         }
       );
     } catch (e) {
-      alert(e.response.data);
+      if (e.response.status == 401){
+        removeToken(history, 1);
+      }
       return;
     }
     setEditMode(false);
@@ -183,11 +198,11 @@ const ProjectInfo = ({ canEdit, data }) => {
 
   return (
     <ProjectInfoWrapper>
-      <Ptag>프로젝트</Ptag>
-      <ul>
+      <Ptag style={{fontWeight: "bold", fontSize: "20px"}}>프로젝트</Ptag>
+      <UlTag>
         {input.map((obj, index) => {
           return (
-            <li key={obj.id}>
+            <LiTag key={obj.id}>
               <ProjectUnit
                 index={index}
                 editMode={editMode}
@@ -196,10 +211,10 @@ const ProjectInfo = ({ canEdit, data }) => {
                 handleSubmit={handleSubmit}
                 input={obj}
               />
-            </li>
+            </LiTag>
           );
         })}
-      </ul>
+      </UlTag>
       {canEdit === true && (
         <ButtonTag
           editMode={editMode}

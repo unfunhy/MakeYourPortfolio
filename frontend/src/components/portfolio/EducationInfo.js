@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
-import { getToken } from "../auth/Auth";
-import { PinputTag, ButtonTag, Ptag, PradioTag } from "./PortfolioUtil";
+import { getToken, removeToken } from "../auth/Auth";
+import { PinputTag, ButtonTag, Ptag, PradioTag, UlTag, LiTag } from "./PortfolioUtil";
+import { useHistory } from "react-router-dom";
 
 const EducationUnit = (props) => {
   const handleChangeWithIndex = (e) => {
@@ -10,7 +11,7 @@ const EducationUnit = (props) => {
   };
 
   return (
-    <div>
+    <>
       <PinputTag
         index={props.index}
         handleChange={handleChangeWithIndex}
@@ -35,12 +36,12 @@ const EducationUnit = (props) => {
         values={["재학중", "학사졸업", "석사졸업", "박사졸업"]}
         state={props.input.state}
       />
-    </div>
+    </>
   );
 };
 
 const EducationInfo = ({ canEdit, data }) => {
-  //[{edu_info},{edu_info} ...]
+  const history = useHistory();
   const [input, setInput] = useState(data);
   const [editMode, setEditMode] = useState(false);
   const [createdTmpKey, setCreatedTmpKey] = useState(-1);
@@ -92,7 +93,6 @@ const EducationInfo = ({ canEdit, data }) => {
   const handleSubmit = async () => {
     data = returnValidData();
     setInput(data);
-    console.log(data);
 
     try {
       await axios.patch(
@@ -108,7 +108,9 @@ const EducationInfo = ({ canEdit, data }) => {
         }
       );
     } catch (e) {
-      alert(e.response.data);
+      if (e.response.status == 401){
+        removeToken(history, 1);
+      }
       return;
     }
     setEditMode(false);
@@ -116,11 +118,11 @@ const EducationInfo = ({ canEdit, data }) => {
 
   return (
     <EducationInfoWrapper>
-      <Ptag>학력</Ptag>
-      <ul>
+      <Ptag style={{fontWeight: "bold", fontSize: "20px"}}>학력</Ptag>
+      <UlTag>
         {input.map((obj, index) => {
           return (
-            <li key={obj.id}>
+            <LiTag key={obj.id}>
               <EducationUnit
                 index={index}
                 editMode={editMode}
@@ -129,10 +131,10 @@ const EducationInfo = ({ canEdit, data }) => {
                 handleSubmit={handleSubmit}
                 input={obj}
               />
-            </li>
+            </LiTag>
           );
         })}
-      </ul>
+      </UlTag>
       {canEdit === true && (
         <ButtonTag
           editMode={editMode}
@@ -153,21 +155,3 @@ const EducationInfoWrapper = styled.div`
   align-items: flex-start;
   padding: 10px;
 `;
-
-// 전송 데이터 형태
-/*
-    {
-      "table": [
-        {
-          id,
-          ...,
-          ...,
-        },
-        {
-          id,
-          ...,
-          ...,
-        }
-      ]
-    }
-  */

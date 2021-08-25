@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { getToken } from "../auth/Auth";
-import { PinputTag, ButtonTag, Ptag } from "./PortfolioUtil";
+import axios from "axios";
+
+import { getToken, removeToken } from "../auth/Auth";
+import { PinputTag, ButtonTag, Ptag, UlTag, LiTag, PtextTag } from "./PortfolioUtil";
+
 
 const AwardUnit = (props) => {
   const handleChangeWithIndex = (e) => {
@@ -19,7 +22,7 @@ const AwardUnit = (props) => {
         tagName="title"
         placeHolder="수상내역"
       />
-      <PinputTag
+      <PtextTag
         index={props.index}
         handleChange={handleChangeWithIndex}
         editMode={props.editMode}
@@ -32,6 +35,7 @@ const AwardUnit = (props) => {
 };
 
 const AwardInfo = ({ canEdit, data }) => {
+  const history = useHistory();
   const [input, setInput] = useState(data);
   const [editMode, setEditMode] = useState(false);
   const [createdTmpKey, setCreatedTmpKey] = useState(-1);
@@ -93,7 +97,9 @@ const AwardInfo = ({ canEdit, data }) => {
         }
       );
     } catch (e) {
-      alert(e.response.data);
+      if (e.response.status == 401){
+        removeToken(history, 1);
+      }
       return;
     }
     setEditMode(false);
@@ -101,11 +107,11 @@ const AwardInfo = ({ canEdit, data }) => {
 
   return (
     <AwardInfoWrapper>
-      <Ptag>수상이력</Ptag>
-      <ul>
+      <Ptag style={{fontWeight: "bold", fontSize: "20px"}}>수상이력</Ptag>
+      <UlTag>
         {input.map((obj, index) => {
           return (
-            <li key={obj.id}>
+            <LiTag key={obj.id}>
               <AwardUnit
                 index={index}
                 editMode={editMode}
@@ -114,10 +120,10 @@ const AwardInfo = ({ canEdit, data }) => {
                 handleSubmit={handleSubmit}
                 input={obj}
               />
-            </li>
+            </LiTag>
           );
         })}
-      </ul>
+      </UlTag>
       {canEdit === true && (
         <ButtonTag
           editMode={editMode}

@@ -72,9 +72,7 @@ const Portfolio = (props) => {
           //그럼 전역을 쓰는 이유가 무엇? 그냥 useState쓰면 안되나
           setUser({ id: userInfo.data.id, name: userInfo.data.name });
         } catch (e) {
-          alert(e);
-          removeToken();
-          history.push("/login");
+          removeToken(history, 1);
           return;
         }
       };
@@ -89,8 +87,9 @@ const Portfolio = (props) => {
   else
     return (
       <PortfolioWrapper>
+        <PortfolioMainFrame>
         <UserInfoWrapper>
-          <Card width="200px" height="auto">
+          <Card width="228px" height="auto" style={{marginRight: 10}}>
             <UserInfo
               canEdit={user.id === id}
               data={{
@@ -127,14 +126,29 @@ const Portfolio = (props) => {
             />
           </Card>
         </DetailInfoWrapper>
+        </PortfolioMainFrame>
       </PortfolioWrapper>
     );
 };
 
-const PortfolioWrapper = styled.div`
-  height: 100vh;
+const PortfolioMainFrame = styled.div`
   display: flex;
   justify-content: flex-start;
+  height: 100%;
+  width: 888px;
+  box-sizing: border-box;
+  padding: 10px;
+  background-color: #DAD0C2;
+  border-radius: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  //border: 1px solid lightgray;
+`;
+
+const PortfolioWrapper = styled.div`
+  height: 100%;
+  display: flex;
+  justify-content: center;
   padding-top: 50px;
   padding-left: 10px;
 `;

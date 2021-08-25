@@ -141,12 +141,10 @@ def convert_datetime_format(data_list, keys):
 def update_portfolio(target_obj, target_str, user_id):
     data_list = request.json.get(target_str)
 
-    print("cur data list ... ", data_list)
     if target_obj == Project:
         convert_datetime_format(data_list, ["start", "end"])
     elif target_obj == Certificate:
         convert_datetime_format(data_list, ["acq_date"])
-    print("converted data ... ", data_list)
     if data_list is None:
         return abort(400, "변경 데이터가 없습니다.")
 

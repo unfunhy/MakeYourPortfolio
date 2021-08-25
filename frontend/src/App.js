@@ -11,7 +11,8 @@ import Network from "./components/network/Network";
 
 const MainFrame = styled.div`
   position: relative;
-  background-color: rgba(223,230,237,255);
+  //background-color: rgba(223,230,237,255);
+  background-color: #CDBBA7;
   width: 100%;
   height: 100%;
 `;

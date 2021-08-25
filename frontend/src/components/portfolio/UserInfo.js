@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
-import { getToken } from "../auth/Auth";
-import { PinputTag, ButtonTag, Ptag } from "./PortfolioUtil";
 import * as FormData from "form-data";
+
+import { getToken, removeToken } from "../auth/Auth";
+import { PinputTag, ButtonTag, Ptag } from "./PortfolioUtil";
+import { useHistory } from "react-router-dom";
 
 const ProfilePic = () => {
   const [imgSrc, setImgSrc] = useState(localStorage.getItem("profile-img"));
@@ -79,6 +81,7 @@ const ProfilePic = () => {
 
 //좌상단 프로필 영역
 const UserInfo = ({ canEdit, data, username }) => {
+  const history = useHistory();
   const [editMode, setEditMode] = useState(false);
   const [input, setInput] = useState(data);
 
@@ -110,7 +113,9 @@ const UserInfo = ({ canEdit, data, username }) => {
         }
       );
     } catch (e) {
-      alert(e.response.data);
+      if (e.response.status == 401){
+        removeToken(history, 1);
+      }
       return;
     }
     setEditMode(false);
@@ -119,7 +124,13 @@ const UserInfo = ({ canEdit, data, username }) => {
   return (
     <UserInfoWrapper>
       <ProfilePic />
-      <Ptag>{username}</Ptag>
+      <Ptag style={{
+        fontWeight: "bold", 
+        fontSize: "20px",
+        marginTop: "15px"
+      }}>
+        {username}
+      </Ptag>
       <PinputTag
         handleChange={handleChange}
         editMode={editMode}
@@ -139,9 +150,10 @@ const UserInfo = ({ canEdit, data, username }) => {
 };
 
 const ImgContainer = styled.div`
-  width: 100px;
-  height: 100px;
+  width: 128px;
+  height: 128px;
   border-radius: 70%;
+  margin-top: 15px;
   overflow: hidden;
 `;
 
@@ -157,7 +169,5 @@ const UserInfoWrapper = styled.div`
   align-items: center;
   padding: 10px;
 `;
-
-
 
 export default UserInfo;

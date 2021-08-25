@@ -1,12 +1,39 @@
-import React from "react";
+import React, {useState} from "react";
+import { useHistory } from "react-router-dom";
+import styled from "styled-components";
 
-const Network = () => {
+import { Card } from "../Card";
+import SearchBar from "./SearchBar";
 
-    return (
-        <div>
+const UserBriefUnit = () => {
+  
+    retrun (
+        <Card>
 
-        </div>
+        </Card>
     );
 };
+
+const Network = () => {
+    const history = useHistory();
+
+  return (
+    <MainFrame>
+    <SearchBar></SearchBar>
+    <GridLayout>
+      
+    </GridLayout>
+    </MainFrame>
+  );
+};
+
+const MainFrame = styled.div`
+
+`;
+
+
+const GridLayout = styled.div`
+  display: grid;
+`;
 
 export default Network;

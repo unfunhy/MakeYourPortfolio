@@ -1,12 +1,62 @@
-import React, {useState} from "react";
+import React from "react";
 import styled from "styled-components";
-import DatePicker from "react-datepicker";
 
 export const Ptag = styled.p`
-  margin: 10px 5px 0px 5px;
+  //display: inline-block;
+  //background-color: cyan;
+  margin: 5px 0 0 0;
+  padding: 3px 12px;
   &:empty::before {
     content: attr(data-placeholder);
     color: gray;
+  }
+`;
+
+export const InputTag = styled.input`
+  box-sizing: border-box;
+  margin: 5px 0 10px 0;
+  height: 35px;
+  width: 100%;
+  font-size: 14px;
+  padding: 3px 0 3px 12px;
+  border: 2px solid lightgray;
+  border-radius: 10px;
+
+  + input {
+    margin-top: 0;
+  }
+`;
+
+const TextAreaTag = styled.textarea`
+  box-sizing: border-box;
+  margin: 0 10px 10px 0;
+  //height: 35px;
+  width: 100%;
+  font-size: 14px;
+  padding: 6px 0 3px 12px;
+  border: 2px solid lightgray;
+  border-radius: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+`;
+
+export const UlTag = styled.ul`
+  //list-style: none;
+  width: 95%;
+  padding: 5px 10px 5px 40px;
+  margin: 20px 0 0 0;
+`;
+
+export const LiTag = styled.li`
+padding-bottom: 20px;
+box-sizing: border-box;
+//background-color: cyan;
+width: 90%;
+
+  + li {
+    border-top: 2px solid lightgray;
+    padding-top: 15px;
   }
 `;
 
@@ -34,11 +84,22 @@ const ImgTag = styled.img`
   object-fit: contain;
 `;
 
+const RadioWrapper = styled.div`
+  margin-top: 5px;
+`;
+
+const RadioSpan = styled.span`
+  margin-top: 5px;
+  + span {
+    margin-left: 15px;
+  }
+`;
+
 //editMode일 시 input tag, 아닐 시 p tag 리턴
 export const PinputTag = (props) => {
   if (props.editMode)
     return (
-      <input
+      <InputTag
         name={props.tagName}
         value={props.data}
         onChange={props.handleChange}
@@ -46,6 +107,45 @@ export const PinputTag = (props) => {
       />
     );
   else return <Ptag data-placeholder={props.placeHoler}>{props.data}</Ptag>;
+};
+
+export const PtextTag = (props) => {
+  if (props.editMode)
+    return (
+      <TextAreaTag
+        rows="3"
+        name={props.tagName}
+        value={props.data}
+        onChange={props.handleChange}
+        placeholder={props.placeHolder}
+      />
+    );
+  else {
+    const lines = props.data.split("\n");
+    return (
+      <div style={{paddingTop: "5px", paddingBottom: "5px", marginTop: "10px"}}>
+        {
+          lines.map((line, index) => {
+            return (
+              <Ptag 
+                key={index} 
+                data-placeholder={props.placeHoler}
+                style={{
+                  paddingTop: 0,
+                  paddingBottom: 0,
+                  marginTop: 0
+                }}
+              >
+                {line}
+              </Ptag>
+            );
+          })
+        }
+      </div>
+    );
+    
+  } 
+    
 };
 
 //editMode일 시 update, create버튼 리턴, 아닐 시 edit버튼 리턴
@@ -80,10 +180,10 @@ export const PradioTag = (props) => {
   if (!props.editMode) return <Ptag>{props.values[props.state - 1]}</Ptag>;
   else
     return (
-      <div>
+      <RadioWrapper>
         {props.values.map((el, index) => {
           return (
-            <span key={index}>
+            <RadioSpan key={index}>
               <input
                 type="radio"
                 id={props.tagName}
@@ -92,10 +192,10 @@ export const PradioTag = (props) => {
                 onChange={props.handleChange}
                 checked={index === props.state - 1 ? "checked" : ""}
               />
-              <label htmlFor={props.tagName}>{el}</label>
-            </span>
+              <label htmlFor={props.tagName}> {el}</label>
+            </RadioSpan>
           );
         })}
-      </div>
+      </RadioWrapper>
     );
 };

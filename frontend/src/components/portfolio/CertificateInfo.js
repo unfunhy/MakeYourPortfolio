@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
-import { getToken } from "../auth/Auth";
-import { PinputTag, ButtonTag, Ptag } from "./PortfolioUtil";
+import { getToken, removeToken } from "../auth/Auth";
+import { PinputTag, ButtonTag, Ptag, InputTag, LiTag, UlTag } from "./PortfolioUtil";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useHistory } from "react-router-dom";
 
 const CertificateUnit = (props) => {
   const handleChangeWithIndex = (e) => {
@@ -58,6 +59,7 @@ const CertificateUnit = (props) => {
             selected={props.input.acq_date}
             onChange={handleDateChangeWithIndex}
             dateFormat="yyyy년 M월 d일"
+            customInput={<InputTag style={{marginTop: 0}}/>}
           />
         </div>
       ) : (
@@ -68,6 +70,7 @@ const CertificateUnit = (props) => {
 };
 
 const CertificateInfo = ({ canEdit, data }) => {
+  const history = useHistory();
   const [input, setInput] = useState(data);
   const [editMode, setEditMode] = useState(false);
   const [createdTmpKey, setCreatedTmpKey] = useState(-1);
@@ -139,7 +142,9 @@ const CertificateInfo = ({ canEdit, data }) => {
         }
       );
     } catch (e) {
-      alert(e.response.data);
+      if (e.response.status == 401){
+        removeToken(history, 1);
+      }
       return;
     }
     setEditMode(false);
@@ -147,11 +152,11 @@ const CertificateInfo = ({ canEdit, data }) => {
 
   return (
     <CertificateInfoWrapper>
-      <Ptag>자격증</Ptag>
-      <ul>
+      <Ptag style={{fontWeight: "bold", fontSize: "20px"}}>자격증</Ptag>
+      <UlTag>
         {input.map((obj, index) => {
           return (
-            <li key={obj.id}>
+            <LiTag key={obj.id}>
               <CertificateUnit
                 index={index}
                 editMode={editMode}
@@ -160,10 +165,10 @@ const CertificateInfo = ({ canEdit, data }) => {
                 handleSubmit={handleSubmit}
                 input={obj}
               />
-            </li>
+            </LiTag>
           );
         })}
-      </ul>
+      </UlTag>
       {canEdit === true && (
         <ButtonTag
           editMode={editMode}
