@@ -76,6 +76,7 @@ const ProjectUnit = (props) => {
           data={props.input.title}
           tagName="title"
           placeHolder="프로젝트 이름"
+          style={{fontWeight:"bold", fontSize:"17px"}}
         />
         <PtextTag
           index={props.index}
@@ -249,7 +250,7 @@ const ProjectInfo = ({ canEdit, data, setValidToken }) => {
 
   return (
     <ProjectInfoWrapper>
-      <Ptag style={{ fontWeight: "bold", fontSize: "20px" }}>프로젝트</Ptag>
+      <Ptag style={{ fontWeight: "bold", fontSize: "20px", color:"black" }}>프로젝트</Ptag>
       <UlTag>
         {input.map((obj, index) => {
           return (

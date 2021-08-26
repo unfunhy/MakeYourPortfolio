@@ -6,6 +6,8 @@ export const Ptag = styled.p`
   //background-color: cyan;
   margin: 5px 0 0 0;
   padding: 3px 12px;
+  color: rgb(50,50,50);
+  font-weight: 500;
   &:empty::before {
     content: attr(data-placeholder);
     color: gray;
@@ -52,6 +54,7 @@ export const LiTag = styled.li`
 padding-bottom: 20px;
 box-sizing: border-box;
 //background-color: cyan;
+list-style: none;
 width: 90%;
 
   + li {
@@ -125,7 +128,13 @@ export const PinputTag = (props) => {
       />
     );
   }
-  else return <Ptag data-placeholder={props.placeHoler}>{props.data}</Ptag>;
+  else 
+    return (
+      <Ptag 
+        data-placeholder={props.placeHoler}
+        style={props.style}
+      >{props.data}</Ptag>
+    );
 };
 
 export const PtextTag = (props) => {

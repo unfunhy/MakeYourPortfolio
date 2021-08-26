@@ -16,6 +16,7 @@ const UserBriefUnit = (props) => {
             fontWeight: "bold",
             fontSize: "20px",
             marginTop: "15px",
+            color: "black"
           }}
         >
           {props.data.name}

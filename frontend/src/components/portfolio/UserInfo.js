@@ -65,7 +65,8 @@ const UserInfo = ({ id, canEdit, data, username, setValidToken }) => {
       <Ptag style={{
         fontWeight: "bold", 
         fontSize: "20px",
-        marginTop: "15px"
+        marginTop: "15px",
+        color: "black"
       }}>
         {username}
       </Ptag>

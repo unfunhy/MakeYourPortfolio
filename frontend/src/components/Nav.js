@@ -31,7 +31,7 @@ const Nav = () => {
       <NavTitle>RacerIn</NavTitle>
       <CustomLink to={`/portfolio/${user.id}`} name="메인" />
       <CustomLink to={"/portfolios"} name="네트워크" />
-      <LogoutLink name="로그아웃" setUser={setUser}/>
+      {user.id !== 0 && <LogoutLink name="로그아웃" setUser={setUser}/>}
     </NavWrapper>
   );
 };

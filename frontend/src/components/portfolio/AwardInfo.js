@@ -32,6 +32,7 @@ const AwardUnit = (props) => {
         data={props.input.title}
         tagName="title"
         placeHolder="수상내역"
+        style={{fontWeight:"bold", fontSize:"17px"}}
       />
       <PtextTag
         index={props.index}
@@ -146,7 +147,7 @@ const AwardInfo = ({ canEdit, data, setValidToken }) => {
 
   return (
     <AwardInfoWrapper>
-      <Ptag style={{ fontWeight: "bold", fontSize: "20px" }}>수상이력</Ptag>
+      <Ptag style={{ fontWeight: "bold", fontSize: "20px", color:"black" }}>수상이력</Ptag>
       <UlTag>
         {input.map((obj, index) => {
           return (

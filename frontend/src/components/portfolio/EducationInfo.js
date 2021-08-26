@@ -24,6 +24,7 @@ const EducationUnit = (props) => {
         data={props.input.school}
         tagName="school"
         placeHolder="학교이름"
+        style={{fontWeight:"bold", fontSize:"17px"}}
       />
       <PinputTag
         index={props.index}
@@ -152,7 +153,7 @@ const EducationInfo = ({ canEdit, data, setValidToken }) => {
 
   return (
     <EducationInfoWrapper>
-      <Ptag style={{fontWeight: "bold", fontSize: "20px"}}>학력</Ptag>
+      <Ptag style={{fontWeight: "bold", fontSize: "20px", color:"black"}}>학력</Ptag>
       <UlTag>
         {input.map((obj, index) => {
           return (

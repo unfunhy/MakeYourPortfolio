@@ -49,6 +49,7 @@ const CertificateUnit = (props) => {
         data={props.input.title}
         tagName="title"
         placeHolder="자격증"
+        style={{fontWeight:"bold", fontSize:"17px"}}
       />
       <PinputTag
         index={props.index}
@@ -185,7 +186,7 @@ const CertificateInfo = ({ canEdit, data, setValidToken }) => {
 
   return (
     <CertificateInfoWrapper>
-      <Ptag style={{fontWeight: "bold", fontSize: "20px"}}>자격증</Ptag>
+      <Ptag style={{fontWeight: "bold", fontSize: "20px", color:"black"}}>자격증</Ptag>
       <UlTag>
         {input.map((obj, index) => {
           return (
