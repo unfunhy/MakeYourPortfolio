@@ -3,12 +3,12 @@ import axios from "axios";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 
-import { getToken, removeToken } from "../auth/Auth";
+import { getToken } from "../auth/Auth";
 import { PinputTag, ButtonTag, Ptag } from "./PortfolioUtil";
 import { EditableProfileImg } from "../PofileImg";
 
 //좌상단 프로필 영역
-const UserInfo = ({ id, canEdit, data, username }) => {
+const UserInfo = ({ id, canEdit, data, username, setValidToken }) => {
   const history = useHistory();
   const [editMode, setEditMode] = useState(false);
   const [input, setInput] = useState({introduce: data.introduce});
@@ -45,8 +45,10 @@ const UserInfo = ({ id, canEdit, data, username }) => {
         }
       );
     } catch (e) {
-      if (e.response.status == 401){
-        removeToken(history, 1);
+      if (e.response.status === 401) {
+        setValidToken(false);
+      } else {
+        alert(e);
       }
       return;
     }

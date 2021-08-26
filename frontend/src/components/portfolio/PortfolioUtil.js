@@ -74,6 +74,7 @@ export const BtnTag = styled.button`
   border-radius: 5px;
   box-shadow: 3px 2px 2px gray;
   font-size: 14px;
+  cursor: pointer;
 
   + button {
     margin-left: 10px;
@@ -97,9 +98,24 @@ const RadioSpan = styled.span`
   }
 `;
 
+const DelBtnWrapper = styled.p`
+  margin:auto;
+  margin-left: 15px;
+`;
+
+export const DeleteBtn = (props) => {
+  return (
+    <DelBtnWrapper>
+      <BtnTag onClick={props.handleDelete}>
+        <ImgTag src="/images/delete_img.png" />
+      </BtnTag>
+    </DelBtnWrapper>
+  );
+};
+
 //editMode일 시 input tag, 아닐 시 p tag 리턴
 export const PinputTag = (props) => {
-  if (props.editMode)
+  if (props.editMode) {
     return (
       <InputTag
         name={props.tagName}
@@ -108,6 +124,7 @@ export const PinputTag = (props) => {
         placeholder={props.placeHolder}
       />
     );
+  }
   else return <Ptag data-placeholder={props.placeHoler}>{props.data}</Ptag>;
 };
 
@@ -147,7 +164,6 @@ export const PtextTag = (props) => {
     );
     
   } 
-    
 };
 
 //editMode일 시 update, create버튼 리턴, 아닐 시 edit버튼 리턴

@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
 
-import { getToken, removeToken } from "../auth/Auth";
-import { PinputTag, ButtonTag, Ptag, InputTag, LiTag, UlTag } from "./PortfolioUtil";
+import { getToken } from "../auth/Auth";
+import { PinputTag, ButtonTag, Ptag, InputTag, LiTag, UlTag, DeleteBtn } from "./PortfolioUtil";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useHistory } from "react-router-dom";
 
 const CertificateUnit = (props) => {
   const handleChangeWithIndex = (e) => {
@@ -25,6 +24,10 @@ const CertificateUnit = (props) => {
     );
   };
 
+  const handleDeleteWithIndex = (e) => {
+    props.handleDelete(e, props.index);
+  };
+
   const dateToString = () => {
     const acqDate = new Date(props.input.acq_date);
 
@@ -37,7 +40,8 @@ const CertificateUnit = (props) => {
   };
 
   return (
-    <div>
+    <FlexRow>
+      <FlexCol>
       <PinputTag
         index={props.index}
         handleChange={handleChangeWithIndex}
@@ -66,12 +70,13 @@ const CertificateUnit = (props) => {
       ) : (
         <Ptag>{dateToString()}</Ptag>
       )}
-    </div>
+      </FlexCol>
+      {props.editMode && <DeleteBtn handleDelete={handleDeleteWithIndex}/>}
+    </FlexRow>
   );
 };
 
-const CertificateInfo = ({ canEdit, data }) => {
-  const history = useHistory();
+const CertificateInfo = ({ canEdit, data, setValidToken }) => {
   const [input, setInput] = useState(data);
   const [editMode, setEditMode] = useState(false);
   const [createdTmpKey, setCreatedTmpKey] = useState(-1);
@@ -120,8 +125,8 @@ const CertificateInfo = ({ canEdit, data }) => {
   };
 
   const convertTimeformat = () => {
-    data = returnValidData();
-    data.forEach(el=>{
+    const ret = returnValidData();
+    ret.forEach(el=>{
         el.acq_date = new Date(el.acq_date);
     });
 
@@ -129,15 +134,14 @@ const CertificateInfo = ({ canEdit, data }) => {
   }
 
   const handleSubmit = async () => {
-    data = convertTimeformat();
-    setInput(data);
-    console.log("submit data ...", data);
+    const validInput = convertTimeformat();
 
+    let res;
     try {
-      await axios.patch(
+      res = await axios.patch(
         '/api/portfolio/certificate',
         {
-          certificate: data,
+          certificate: validInput,
         },
         {
           headers: {
@@ -148,11 +152,35 @@ const CertificateInfo = ({ canEdit, data }) => {
       );
     } catch (e) {
       if (e.response.status == 401){
-        removeToken(history, 1);
+        setValidToken(false);
+      } else {
+        alert(e);
       }
       return;
     }
+    const newInput = validInput.map((data, index) => {
+      return {
+        ...data,
+        id: res.data[index],
+      }
+    });
+    setInput(newInput);
     setEditMode(false);
+  };
+
+  const handleDelete = async (e, index) => {
+    const curId = input[index].id;
+    if (curId > 0) {
+      await axios.delete("/api/portfolio/certificate", {
+        headers: {
+          Authorization: getToken(),
+        },
+        data: {
+          id: curId,
+        },
+      })
+    }
+    setInput(input.filter(data=>data.id != curId));
   };
 
   return (
@@ -168,6 +196,7 @@ const CertificateInfo = ({ canEdit, data }) => {
                 handleEdit={handleEdit}
                 handleChange={handleChange}
                 handleSubmit={handleSubmit}
+                handleDelete={handleDelete}
                 input={obj}
               />
             </LiTag>
@@ -195,20 +224,14 @@ const CertificateInfoWrapper = styled.div`
   padding: 10px;
 `;
 
-// 전송 데이터 형태
-/*
-    {
-      "table": [
-        {
-          id,
-          ...,
-          ...,
-        },
-        {
-          id,
-          ...,
-          ...,
-        }
-      ]
-    }
-  */
+const FlexRow = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+`;
+
+const FlexCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;

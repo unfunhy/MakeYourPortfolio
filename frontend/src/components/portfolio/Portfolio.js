@@ -17,18 +17,21 @@ const Portfolio = (props) => {
   const { user, setUser } = useContext(UserContext);
   const [data, setData] = useState({});
   const [profileImg, setProfileImg] = useState("");
+  const [validToken, setValidToken] = useState(true);
   const history = useHistory();
 
   const getData = async () => {
     try {
-      const res = await axios.get('/api/portfolio', {
+      const res = await axios.get("/api/portfolio", {
         headers: { Authorization: getToken() },
         params: { id: id },
       });
       setData(res.data);
     } catch (e) {
       if (e.response.status === 401) {
-        removeToken(history, 1);
+        removeToken(setUser, history, 1);
+      } else {
+        alert(e);
       }
     }
   };
@@ -49,7 +52,7 @@ const Portfolio = (props) => {
     }
 
     try {
-      const res = await axios.get('/api/portfolio/profile', {
+      const res = await axios.get("/api/portfolio/profile", {
         headers: { Authorization: getToken() },
         params: { id: id },
       });
@@ -63,18 +66,20 @@ const Portfolio = (props) => {
   };
 
   useEffect(() => {
-    getData();
-  }, []);
-
-  useEffect(() => {
     getProfileData();
   }, [user]);
 
   // Navigation을 통해 portfolio -> portfolio이동 시 데이터 재설정
-  useEffect(()=>{
+  useEffect(() => {
     getData();
     getProfileData();
   }, [id]);
+
+  useEffect(()=> {
+    if(!validToken){
+      removeToken(setUser, history, 1);
+    }
+  }, [validToken])
 
   if (Object.keys(data).length === 0 || user.id === 0)
     return <div>로딩 중...</div>;
@@ -93,23 +98,37 @@ const Portfolio = (props) => {
                   setProfile: setProfileImg,
                 }}
                 username={data.user.name}
+                setValidToken={setValidToken}
               />
             </Card>
           </UserInfoWrapper>
           <DetailInfoWrapper>
             <Card width="600px" height="auto">
-              <EducationInfo canEdit={user.id === id} data={data.education} />
+              <EducationInfo
+                canEdit={user.id === id}
+                data={data.education}
+                setValidToken={setValidToken}
+              />
             </Card>
             <Card width="600px" height="auto">
-              <AwardInfo canEdit={user.id === id} data={data.award} />
+              <AwardInfo
+                canEdit={user.id === id}
+                data={data.award}
+                setValidToken={setValidToken}
+              />
             </Card>
             <Card width="600px" height="auto">
-              <ProjectInfo canEdit={user.id === id} data={data.project} />
+              <ProjectInfo
+                canEdit={user.id === id}
+                data={data.project}
+                setValidToken={setValidToken}
+              />
             </Card>
             <Card width="600px" height="auto">
               <CertificateInfo
                 canEdit={user.id === id}
                 data={data.certificate}
+                setValidToken={setValidToken}
               />
             </Card>
           </DetailInfoWrapper>

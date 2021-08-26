@@ -23,7 +23,7 @@ const App = () => {
       setUser({ id: userInfo.data.id, name: userInfo.data.name });
     } catch {
       //올바르지 않은 토큰 삭제
-      removeToken();
+      removeToken(setUser);
     }
   };
 

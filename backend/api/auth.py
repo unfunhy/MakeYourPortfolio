@@ -38,7 +38,7 @@ def login():
         return abort(403, error_msg[Error.INVALID_DATA])
 
     user = select_all_from_target_table(User, User.email, email)
-    if user is not None:
+    if len(user) > 0:
         user = user[0]
         if bcrypt.check_password_hash(user.user_pw, user_pw):
             return {

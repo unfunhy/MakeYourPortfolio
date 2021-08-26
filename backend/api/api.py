@@ -172,6 +172,7 @@ def convert_datetime_format(data_list, keys):
 # portfolio update
 def update_portfolio(target_obj, target_str, user_id):
     data_list = request.json.get(target_str)
+    id_list = []
 
     if target_obj == Project:
         convert_datetime_format(data_list, ["start", "end"])
@@ -181,20 +182,25 @@ def update_portfolio(target_obj, target_str, user_id):
         return abort(400, "변경 데이터가 없습니다.")
 
     for data in data_list:
-        exist = select_all_from_target_table(target_obj, target_obj.id, data.get("id"))
-        if len(exist) != 0:
-            exist[0].update(data)
+        curData = select_all_from_target_table(target_obj, target_obj.id, data.get("id"))
+        if len(curData) != 0:
+            curData = curData[0]
+            curData.update(data)
         else:
             data["user_id"] = user_id
-            db.session.add(target_obj(data))
+            curData = target_obj(data)
 
-    try:
-        db.session.commit()
-    except:
-        db.session.rollback()
-        return abort(500, error_msg[Error.INTERNAL_DB_ERROR])
+            db.session.add(curData)
 
-    return '', 204
+        try:
+            db.session.commit() 
+        except:
+            db.session.rollback()
+            return abort(500, error_msg[Error.INTERNAL_DB_ERROR])
+        
+        id_list.append(curData.id)
+
+    return jsonify(id_list)
 
 # portfolio education update API
 @portfolio.route("/portfolio/education", methods=["PATCH"])
@@ -219,3 +225,54 @@ def update_portfolio_project(id):
 @jwt_required
 def update_portfolio_cert(id):
     return update_portfolio(Certificate, "certificate", id)
+
+
+# portfolio delete
+def delete_portfolio(target_obj, user_id):
+    data_id = request.json.get("id")
+
+    if data_id is None:
+        return abort(400, "변경 데이터가 없습니다.")
+
+    curData = select_all_from_target_table(target_obj, target_obj.id, data_id)
+
+    if len(curData) == 0:
+        return abort(400, "요청 데이터가 없습니다.")
+
+    curData = curData[0]
+    if (user_id != curData.user_id):
+        return abort(400, "올바르지 않은 요청입니다.")
+
+    db.session.delete(curData)
+
+    try:
+        db.session.commit() 
+    except:
+        db.session.rollback()
+        return abort(500, error_msg[Error.INTERNAL_DB_ERROR])
+
+    return ''
+
+# portfolio education update API
+@portfolio.route("/portfolio/education", methods=["DELETE"])
+@jwt_required
+def delete_portfolio_education(id):
+    return delete_portfolio(Education, id)
+
+# portfolio award update API
+@portfolio.route("/portfolio/award", methods=["DELETE"])
+@jwt_required
+def delete_portfolio_award(id):
+    return delete_portfolio(Award, id)
+
+# portfolio project update API
+@portfolio.route("/portfolio/project", methods=["DELETE"])
+@jwt_required
+def delete_portfolio_project(id):
+    return delete_portfolio(Project, id)
+
+# portfolio cert update API
+@portfolio.route("/portfolio/certificate", methods=["DELETE"])
+@jwt_required
+def delete_portfolio_cert(id):
+    return delete_portfolio(Certificate, id)

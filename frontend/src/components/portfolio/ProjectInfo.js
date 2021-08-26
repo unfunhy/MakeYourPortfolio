@@ -4,9 +4,17 @@ import styled from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-import { getToken, removeToken } from "../auth/Auth";
-import { PinputTag, ButtonTag, Ptag, InputTag, LiTag, UlTag, PtextTag } from "./PortfolioUtil";
-import { useHistory } from "react-router-dom";
+import { getToken } from "../auth/Auth";
+import {
+  PinputTag,
+  ButtonTag,
+  Ptag,
+  InputTag,
+  LiTag,
+  UlTag,
+  PtextTag,
+  DeleteBtn,
+} from "./PortfolioUtil";
 
 const ProjectUnit = (props) => {
   const handleChangeWithIndex = (e) => {
@@ -18,7 +26,7 @@ const ProjectUnit = (props) => {
       {
         target: {
           name: "start",
-          value: e
+          value: e,
         },
       },
       props.index
@@ -27,14 +35,18 @@ const ProjectUnit = (props) => {
 
   const handleEndChangeWithIndex = (e) => {
     props.handleChange(
-        {
-          target: {
-            name: "end",
-            value: e
-          },
+      {
+        target: {
+          name: "end",
+          value: e,
         },
-        props.index
-      );
+      },
+      props.index
+    );
+  };
+
+  const handleDeleteWithIndex = (e) => {
+    props.handleDelete(e, props.index);
   };
 
   const dateToString = () => {
@@ -55,75 +67,87 @@ const ProjectUnit = (props) => {
   };
 
   return (
-    <>
-      <PinputTag
-        index={props.index}
-        handleChange={handleChangeWithIndex}
-        editMode={props.editMode}
-        data={props.input.title}
-        tagName="title"
-        placeHolder="프로젝트 이름"
-      />
-      <PtextTag
-        index={props.index}
-        handleChange={handleChangeWithIndex}
-        editMode={props.editMode}
-        data={props.input.desc}
-        tagName="desc"
-        placeHolder="상세내역"
-      />
-      {props.editMode ? (
-        <DatePickerContainer>
-          <DatePicker
-            selected={props.input.start}
-            onChange={handleStartChangeWithIndex}
-            selectsStart
-            startDate={props.input.start}
-            endDate={props.input.end}
-            dateFormat="yyyy년 M월 d일"
-            customInput={<InputTag style={{
-              width: "100%", 
-              textAlign: "center",
-              padding: 0,
-              marginTop: 0
-            }}/>}
-          />
-          <DatePicker
-            selected={props.input.end}
-            onChange={handleEndChangeWithIndex}
-            selectsEnd
-            startDate={props.input.start}
-            endDate={props.input.end}
-            minDate={props.input.start}
-            dateFormat="yyyy년 M월 d일"
-            customInput={<InputTag style={{
-              width: "100%", 
-              textAlign: "center",
-              padding: 0,
-              marginTop: 0
-            }}/>}
-          />
-        </DatePickerContainer>
-      ) : (
-        <Ptag>{dateToString()}</Ptag>
-      )}
-    </>
+    <FlexRow>
+      <FlexCol>
+        <PinputTag
+          index={props.index}
+          handleChange={handleChangeWithIndex}
+          editMode={props.editMode}
+          data={props.input.title}
+          tagName="title"
+          placeHolder="프로젝트 이름"
+        />
+        <PtextTag
+          index={props.index}
+          handleChange={handleChangeWithIndex}
+          editMode={props.editMode}
+          data={props.input.desc}
+          tagName="desc"
+          placeHolder="상세내역"
+        />
+        {props.editMode ? (
+          <DatePickerContainer>
+            <DatePicker
+              selected={props.input.start}
+              onChange={handleStartChangeWithIndex}
+              selectsStart
+              startDate={props.input.start}
+              endDate={props.input.end}
+              dateFormat="yyyy년 M월 d일"
+              customInput={
+                <InputTag
+                  style={{
+                    width: "100%",
+                    textAlign: "center",
+                    padding: 0,
+                    marginTop: 0,
+                  }}
+                />
+              }
+            />
+            <DatePicker
+              selected={props.input.end}
+              onChange={handleEndChangeWithIndex}
+              selectsEnd
+              startDate={props.input.start}
+              endDate={props.input.end}
+              minDate={props.input.start}
+              dateFormat="yyyy년 M월 d일"
+              customInput={
+                <InputTag
+                  style={{
+                    width: "100%",
+                    textAlign: "center",
+                    padding: 0,
+                    marginTop: 0,
+                  }}
+                />
+              }
+            />
+          </DatePickerContainer>
+        ) : (
+          <Ptag>{dateToString()}</Ptag>
+        )}
+      </FlexCol>
+      {props.editMode && <DeleteBtn handleDelete={handleDeleteWithIndex}/>}
+    </FlexRow>
   );
 };
 
-const ProjectInfo = ({ canEdit, data }) => {
-  const history = useHistory();
+const ProjectInfo = ({ canEdit, data, setValidToken }) => {
   const [input, setInput] = useState(data);
   const [editMode, setEditMode] = useState(false);
   const [createdTmpKey, setCreatedTmpKey] = useState(-1);
 
-  useEffect(()=>{
+  useEffect(() => {
     setInput(data);
-  }, [data])
+  }, [data]);
 
   const returnValidData = () => {
     data = input.filter((el) => {
-      return el.title !== "" && el.desc !== "" && el.start !== "" && el.end !== "";
+      return (
+        el.title !== "" && el.desc !== "" && el.start !== "" && el.end !== ""
+      );
     });
     return data;
   };
@@ -164,24 +188,24 @@ const ProjectInfo = ({ canEdit, data }) => {
   // 서버로부터 timestamp 형식의 date 정보를 받기 때문에
   // 서버로 전송하기 전 데이터 포멧이 timestamp형식이라면 js date형식으로 변경
   const convertTimeformat = () => {
-    data = returnValidData();
-    data.forEach(el=>{
-        el.start = new Date(el.start);
-        el.end = new Date(el.end);
+    const ret = returnValidData();
+    ret.forEach((el) => {
+      el.start = new Date(el.start);
+      el.end = new Date(el.end);
     });
 
-    return data;
-  }
+    return ret;
+  };
 
   const handleSubmit = async () => {
-    data = convertTimeformat();
-    setInput(data);
+    const validInput = convertTimeformat();
 
+    let res;
     try {
-      await axios.patch(
+      res = await axios.patch(
         '/api/portfolio/project',
         {
-          project: data,
+          project: validInput,
         },
         {
           headers: {
@@ -192,16 +216,40 @@ const ProjectInfo = ({ canEdit, data }) => {
       );
     } catch (e) {
       if (e.response.status == 401){
-        removeToken(history, 1);
+        setValidToken(false);
+      } else {
+        alert(e);
       }
       return;
     }
+    const newInput = validInput.map((data, index) => {
+      return {
+        ...data,
+        id: res.data[index],
+      }
+    });
+    setInput(newInput);
     setEditMode(false);
+  };
+
+  const handleDelete = async (e, index) => {
+    const curId = input[index].id;
+    if (curId > 0) {
+      await axios.delete("/api/portfolio/project", {
+        headers: {
+          Authorization: getToken(),
+        },
+        data: {
+          id: curId,
+        },
+      })
+    }
+    setInput(input.filter(data=>data.id != curId));
   };
 
   return (
     <ProjectInfoWrapper>
-      <Ptag style={{fontWeight: "bold", fontSize: "20px"}}>프로젝트</Ptag>
+      <Ptag style={{ fontWeight: "bold", fontSize: "20px" }}>프로젝트</Ptag>
       <UlTag>
         {input.map((obj, index) => {
           return (
@@ -212,6 +260,7 @@ const ProjectInfo = ({ canEdit, data }) => {
                 handleEdit={handleEdit}
                 handleChange={handleChange}
                 handleSubmit={handleSubmit}
+                handleDelete={handleDelete}
                 input={obj}
               />
             </LiTag>
@@ -242,20 +291,15 @@ const ProjectInfoWrapper = styled.div`
 const DatePickerContainer = styled.div`
   display: flex;
 `;
-// 전송 데이터 형태
-/*
-    {
-      "table": [
-        {
-          id,
-          ...,
-          ...,
-        },
-        {
-          id,
-          ...,
-          ...,
-        }
-      ]
-    }
-  */
+
+const FlexRow = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+`;
+
+const FlexCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;

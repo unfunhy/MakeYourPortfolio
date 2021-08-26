@@ -19,7 +19,6 @@ const Network = () => {
         params: { page, search },
       });
       setUserData(res.data);
-      console.log(res.data);
     } catch (e) {
       console.log(e);
     }
@@ -120,21 +119,22 @@ const NavFrame = styled.div`
 const MainFrame = styled.div`
   display: flex;
   justify-content: flex-start;
-  height: 691px;
-  width: 830px;
+  height: auto;
+  width: auto;
   box-sizing: border-box;
   padding: 10px;
   background-color: #dad0c2;
   border-radius: 20px;
   margin-top: 20px;
   margin-bottom: 20px;
+  padding-bottom: 17px;
 `;
 
 const GridContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-column-gap: 0px;
-  grid-row-gap: 10px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-column-gap: 10px;
+  grid-row-gap: 20px;
   padding-bottom: 7px;
   width: 100%;
   height: 100%;

@@ -1,19 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
 
-import { getToken, removeToken } from "../auth/Auth";
-import { PinputTag, ButtonTag, Ptag, UlTag, LiTag, PtextTag } from "./PortfolioUtil";
-
+import { getToken } from "../auth/Auth";
+import {
+  PinputTag,
+  ButtonTag,
+  Ptag,
+  UlTag,
+  LiTag,
+  PtextTag,
+  DeleteBtn,
+} from "./PortfolioUtil";
 
 const AwardUnit = (props) => {
   const handleChangeWithIndex = (e) => {
     props.handleChange(e, props.index);
   };
 
+  const handleDeleteWithIndex = (e) => {
+    props.handleDelete(e, props.index);
+  };
+
   return (
-    <div>
+    <FlexRow>
+      <FlexCol>
       <PinputTag
         index={props.index}
         handleChange={handleChangeWithIndex}
@@ -30,19 +41,20 @@ const AwardUnit = (props) => {
         tagName="desc"
         placeHolder="상세내역"
       />
-    </div>
+      </FlexCol>
+      {props.editMode && <DeleteBtn handleDelete={handleDeleteWithIndex}/>}
+    </FlexRow>
   );
 };
 
-const AwardInfo = ({ canEdit, data }) => {
-  const history = useHistory();
+const AwardInfo = ({ canEdit, data, setValidToken }) => {
   const [input, setInput] = useState(data);
   const [editMode, setEditMode] = useState(false);
   const [createdTmpKey, setCreatedTmpKey] = useState(-1);
 
-  useEffect(()=>{
+  useEffect(() => {
     setInput(data);
-  }, [data])
+  }, [data]);
 
   const returnValidData = () => {
     data = input.filter((el) => {
@@ -83,15 +95,14 @@ const AwardInfo = ({ canEdit, data }) => {
   };
 
   const handleSubmit = async () => {
-    data = returnValidData();
-    setInput(data);
-    console.log(data);
+    const validInput = returnValidData();
 
+    let res;
     try {
-      await axios.patch(
+      res = await axios.patch(
         '/api/portfolio/award',
         {
-          award: data,
+          award: validInput,
         },
         {
           headers: {
@@ -102,16 +113,40 @@ const AwardInfo = ({ canEdit, data }) => {
       );
     } catch (e) {
       if (e.response.status == 401){
-        removeToken(history, 1);
+        setValidToken(false);
+      } else {
+        alert(e);
       }
       return;
     }
+    const newInput = validInput.map((data, index) => {
+      return {
+        ...data,
+        id: res.data[index],
+      }
+    });
+    setInput(newInput);
     setEditMode(false);
+  };
+
+  const handleDelete = async (e, index) => {
+    const curId = input[index].id;
+    if (curId > 0) {
+      await axios.delete("/api/portfolio/award", {
+        headers: {
+          Authorization: getToken(),
+        },
+        data: {
+          id: curId,
+        },
+      })
+    }
+    setInput(input.filter(data=>data.id != curId));
   };
 
   return (
     <AwardInfoWrapper>
-      <Ptag style={{fontWeight: "bold", fontSize: "20px"}}>수상이력</Ptag>
+      <Ptag style={{ fontWeight: "bold", fontSize: "20px" }}>수상이력</Ptag>
       <UlTag>
         {input.map((obj, index) => {
           return (
@@ -122,6 +157,7 @@ const AwardInfo = ({ canEdit, data }) => {
                 handleEdit={handleEdit}
                 handleChange={handleChange}
                 handleSubmit={handleSubmit}
+                handleDelete={handleDelete}
                 input={obj}
               />
             </LiTag>
@@ -149,20 +185,14 @@ const AwardInfoWrapper = styled.div`
   padding: 10px;
 `;
 
-// 전송 데이터 형태
-/*
-    {
-      "table": [
-        {
-          id,
-          ...,
-          ...,
-        },
-        {
-          id,
-          ...,
-          ...,
-        }
-      ]
-    }
-  */
+const FlexRow = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+`;
+
+const FlexCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;

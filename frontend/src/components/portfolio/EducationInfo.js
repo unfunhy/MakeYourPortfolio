@@ -2,24 +2,28 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styled from "styled-components";
 
-import { getToken, removeToken } from "../auth/Auth";
-import { PinputTag, ButtonTag, Ptag, PradioTag, UlTag, LiTag } from "./PortfolioUtil";
-import { useHistory } from "react-router-dom";
+import { getToken } from "../auth/Auth";
+import { PinputTag, ButtonTag, Ptag, PradioTag, UlTag, LiTag, DeleteBtn } from "./PortfolioUtil";
 
 const EducationUnit = (props) => {
   const handleChangeWithIndex = (e) => {
     props.handleChange(e, props.index);
   };
 
+  const handleDeleteWithIndex = (e) => {
+    props.handleDelete(e, props.index);
+  };
+
   return (
-    <>
+    <FlexRow>
+      <FlexCol>
       <PinputTag
         index={props.index}
         handleChange={handleChangeWithIndex}
         editMode={props.editMode}
         data={props.input.school}
         tagName="school"
-        placeHoler="학교이름"
+        placeHolder="학교이름"
       />
       <PinputTag
         index={props.index}
@@ -37,12 +41,13 @@ const EducationUnit = (props) => {
         values={["재학중", "학사졸업", "석사졸업", "박사졸업"]}
         state={props.input.state}
       />
-    </>
+      </FlexCol>
+      {props.editMode && <DeleteBtn handleDelete={handleDeleteWithIndex}/>}
+    </FlexRow>
   );
 };
 
-const EducationInfo = ({ canEdit, data }) => {
-  const history = useHistory();
+const EducationInfo = ({ canEdit, data, setValidToken }) => {
   const [input, setInput] = useState(data);
   const [editMode, setEditMode] = useState(false);
   const [createdTmpKey, setCreatedTmpKey] = useState(-1);
@@ -96,14 +101,14 @@ const EducationInfo = ({ canEdit, data }) => {
   };
 
   const handleSubmit = async () => {
-    data = returnValidData();
-    setInput(data);
+    const validInput = returnValidData();
 
+    let res;
     try {
-      await axios.patch(
+      res = await axios.patch(
         '/api/portfolio/education',
         {
-          education: data,
+          education: validInput,
         },
         {
           headers: {
@@ -114,11 +119,35 @@ const EducationInfo = ({ canEdit, data }) => {
       );
     } catch (e) {
       if (e.response.status == 401){
-        removeToken(history, 1);
+        setValidToken(false);
+      } else {
+        alert(e);
       }
       return;
     }
+    const newInput = validInput.map((data, index) => {
+      return {
+        ...data,
+        id: res.data[index],
+      }
+    });
+    setInput(newInput);
     setEditMode(false);
+  };
+
+  const handleDelete = async (e, index) => {
+    const curId = input[index].id;
+    if (curId > 0) {
+      await axios.delete("/api/portfolio/education", {
+        headers: {
+          Authorization: getToken(),
+        },
+        data: {
+          id: curId,
+        },
+      })
+    }
+    setInput(input.filter(data=>data.id != curId));
   };
 
   return (
@@ -135,6 +164,7 @@ const EducationInfo = ({ canEdit, data }) => {
                 handleChange={handleChange}
                 handleSubmit={handleSubmit}
                 input={obj}
+                handleDelete={handleDelete}
               />
             </LiTag>
           );
@@ -159,4 +189,16 @@ const EducationInfoWrapper = styled.div`
   flex-direction: column;
   align-items: flex-start;
   padding: 10px;
+`;
+
+const FlexRow = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+`;
+
+const FlexCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 `;

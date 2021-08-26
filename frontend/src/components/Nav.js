@@ -17,8 +17,7 @@ const LogoutLink = (props) => {
   const history = useHistory();
 
   const handleClick = () => {
-    props.setUser({id:0, name:""});
-    removeToken(history);
+    removeToken(props.setUser, history);
   };
 
   return <LogoutBtn onClick={handleClick}>{props.name}</LogoutBtn>
