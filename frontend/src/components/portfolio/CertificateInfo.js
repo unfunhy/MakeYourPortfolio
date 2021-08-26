@@ -87,7 +87,7 @@ const CertificateInfo = ({ canEdit, data, setValidToken }) => {
 
   const returnValidData = () => {
     const ret = input.filter((el) => {
-      return el.title !== "" && el.auth !== "" && el.acq_date !== "";
+      return el.title !== "" && el.auth !== "";
     });
     return ret;
   };
@@ -103,7 +103,7 @@ const CertificateInfo = ({ canEdit, data, setValidToken }) => {
       {
         id: createdTmpKey,
         title: "",
-        desc: "",
+        auth: "",
         acq_date: new Date("2020/09/02"),
       },
     ]);
@@ -127,15 +127,15 @@ const CertificateInfo = ({ canEdit, data, setValidToken }) => {
   const convertTimeformat = () => {
     const ret = returnValidData();
     ret.forEach(el=>{
-        el.acq_date = new Date(el.acq_date);
+      el.acq_date = new Date(el.acq_date);
     });
 
-    return data;
+    return ret;
   }
 
   const handleSubmit = async () => {
     const validInput = convertTimeformat();
-
+    
     let res;
     try {
       res = await axios.patch(
