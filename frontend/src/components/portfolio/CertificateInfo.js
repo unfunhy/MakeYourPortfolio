@@ -86,10 +86,10 @@ const CertificateInfo = ({ canEdit, data, setValidToken }) => {
   }, [data])
 
   const returnValidData = () => {
-    data = input.filter((el) => {
+    const ret = input.filter((el) => {
       return el.title !== "" && el.auth !== "" && el.acq_date !== "";
     });
-    return data;
+    return ret;
   };
 
   const handleEdit = (e) => {

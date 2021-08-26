@@ -57,10 +57,10 @@ const EducationInfo = ({ canEdit, data, setValidToken }) => {
   }, [data])
 
   const returnValidData = () => {
-    data = input.filter((el) => {
+    const ret = input.filter((el) => {
       return el.school !== "" && el.major !== "" && el.state !== 0;
     });
-    return data;
+    return ret;
   };
 
   const handleEdit = (e) => {
