@@ -4,6 +4,7 @@ import styled from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
+import { baseURL } from "../../Config";
 import { getToken, removeToken } from "../auth/Auth";
 import { PinputTag, ButtonTag, Ptag, InputTag, LiTag, UlTag, PtextTag } from "./PortfolioUtil";
 import { useHistory } from "react-router-dom";
@@ -179,7 +180,7 @@ const ProjectInfo = ({ canEdit, data }) => {
 
     try {
       await axios.patch(
-        "/api/portfolio/project",
+        `${baseURL}/api/portfolio/project`,
         {
           project: data,
         },

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 
+import { baseURL } from "../../Config";
 import UserContext from "../UserContext";
 import { Card } from "../Card";
 import { getToken, removeToken } from "../auth/Auth";
@@ -21,14 +22,13 @@ const Portfolio = (props) => {
 
   const getData = async () => {
     try {
-      const res = await axios.get("/api/portfolio", {
+      const res = await axios.get(`${baseURL}/api/portfolio`, {
         headers: { Authorization: getToken() },
         params: { id: id },
       });
-      console.log("response data ...", res.data);
       setData(res.data);
     } catch (e) {
-      if (e.response.status == 401) {
+      if (e.response.status === 401) {
         removeToken(history, 1);
       }
     }
@@ -39,9 +39,9 @@ const Portfolio = (props) => {
     # 해당 사용자 데이터라면 localstorage에 저장 및 사용
     # 아니라면 매번 데이터 요청
     */
-    if (user.id == 0) return;
+    if (user.id === 0) return;
 
-    if (user.id == id) {
+    if (user.id === id) {
       const localData = localStorage.getItem(`profile-img-${id}`);
       if (localData !== null) {
         setProfileImg(localData);
@@ -50,15 +50,15 @@ const Portfolio = (props) => {
     }
 
     try {
-      const res = await axios.get("/api/portfolio/profile", {
+      const res = await axios.get(`${baseURL}/api/portfolio/profile`, {
         headers: { Authorization: getToken() },
         params: { id: id },
       });
       setProfileImg(res.data.profile);
-      if (user.id == id)
+      if (user.id === id)
         localStorage.setItem(`profile-img-${id}`, res.data.profile);
     } catch (e) {
-      if (user.id == id) localStorage.setItem(`profile-img-${id}`, "empty");
+      if (user.id === id) localStorage.setItem(`profile-img-${id}`, "empty");
       console.log(e);
     }
   };

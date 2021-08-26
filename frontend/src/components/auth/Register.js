@@ -3,8 +3,10 @@ import { useHistory } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 
+import { baseURL } from "../../Config";
 import UserContext from "../UserContext";
 import { Card } from "../Card";
+import { InputTag } from "../portfolio/PortfolioUtil";
 
 const Register = () => {
   const { user, setUser } = useContext(UserContext);
@@ -13,7 +15,9 @@ const Register = () => {
   const [confirmPw, setConfirmPw] = useState("");
   const name = useRef();
 
-  const [id_state, set_id_state] = useState(0);
+  const [idState, setIdState] = useState(0);
+  const [pwState, setPwState] = useState(0);
+  const [confirmPwState, setConfirmPwState] = useState(0);
 
   const history = useHistory();
 
@@ -35,6 +39,7 @@ const Register = () => {
     "영문 대문자 혹은 소문자를 포함해야 합니다.",
     "숫자를 포함해야 합니다.",
     "특수문자 (!,@,#,$,^,*,+) 중 하나 이상 포함해야 합니다.",
+    "비밀번호가 일치하지 않습니다.",
   ];
 
   useEffect(() => {
@@ -42,16 +47,24 @@ const Register = () => {
   }, [user]);
 
   useEffect(() => {
-    var timer = setTimeout(check_email, 1000);
+    const timer = setTimeout(check_email, 700);
     return () => clearTimeout(timer);
   }, [id]);
 
+  useEffect(()=>{
+    check_pw();
+  }, [pw]);
+
+  useEffect(()=>{
+    check_confirm_pw();
+  }, [confirmPw]);
+
   const handleRegister = async () => {
-    if (id_state !== 1 || check_pw() !== 1) return;
+    if (idState !== 1 || pwState !== 1 || confirmPwState !== 0) return;
 
     try {
       await axios.post(
-        "/api/register",
+        `${baseURL}/api/register`,
         {
           email: id,
           user_pw: pw,
@@ -74,57 +87,67 @@ const Register = () => {
     if (id.length === 0) return;
     if (regex_id.test(id)) {
       try {
-        await axios.get("/api/register", { params: { email: id } });
-        set_id_state(1);
+        await axios.get(`${baseURL}/api/register`, { params: { email: id } });
+        setIdState(1);
       } catch (e) {
         console.log(e);
-        set_id_state(2);
+        setIdState(2);
       }
     } else {
-      set_id_state(3);
+      setIdState(3);
     }
   };
 
   const check_pw = () => {
-    if (pw.length == 0) return 0;
-    if (regex_invalid.test(pw)) return 2;
-    else if (pw.length < 8 || pw.length > 16) return 3;
-    else if (!/[A-Za-z]/.test(pw)) return 4;
-    else if (!/[0-9]/.test(pw)) return 5;
-    else if (!/[!@#$^*+]/.test(pw)) return 6;
-    else return 1;
+    if (pw.length == 0) setPwState(0);
+    else if (regex_invalid.test(pw)) setPwState(2);
+    else if (pw.length < 8 || pw.length > 16) setPwState(3);
+    else if (!/[A-Za-z]/.test(pw)) setPwState(4);
+    else if (!/[0-9]/.test(pw)) setPwState(5);
+    else if (!/[!@#$^*+]/.test(pw)) setPwState(6);
+    else setPwState(1);
   };
 
   const check_confirm_pw = () => {
-    if (pw !== confirmPw) return false;
-    else return true;
+    if (pw !== confirmPw) setConfirmPwState(7);
+    else setConfirmPwState(0);
   };
 
   return (
     <RegisterWrapper>
-      <Card login width="400px" height="520px">
-        <label>아이디</label>
-        <input value={id} onChange={(e) => setId(e.target.value)} />
-        <p>{id_msg[id_state]}</p>
-        <label>비밀번호</label>
-        <input
-          type="password"
-          value={pw}
-          onChange={(e) => setPw(e.target.value)}
-        />
-        <p>{pw_msg[check_pw()]}</p>
-        <label>비밀번호 확인</label>
-        <input
-          type="password"
-          value={confirmPw}
-          onChange={(e) => setConfirmPw(e.target.value)}
-        />
-        {!check_confirm_pw() && <p>비밀번호가 일치하지 않습니다.</p>}
-        <label>이름</label>
-        <input
-          ref={name}
-        />
-        <button onClick={handleRegister}>회원가입</button>
+      <Card login width="400px" height="auto">
+        <FlexColumn>
+          <RegisterFrame>
+            <div>
+              <LabelTag>아이디</LabelTag>
+              <InputTag value={id} onChange={(e) => setId(e.target.value)} />
+              <Ptag state={idState}>{id_msg[idState]}</Ptag>
+            </div>
+            <div>
+              <LabelTag>비밀번호</LabelTag>
+              <InputTag
+                type="password"
+                value={pw}
+                onChange={(e) => setPw(e.target.value)}
+              />
+              <Ptag state={pwState}>{pw_msg[pwState]}</Ptag>
+            </div>
+            <div>
+              <LabelTag>비밀번호 확인</LabelTag>
+              <InputTag
+                type="password"
+                value={confirmPw}
+                onChange={(e) => setConfirmPw(e.target.value)}
+              />
+              <Ptag state={confirmPwState}>{pw_msg[confirmPwState]}</Ptag>
+            </div>
+            <div>
+              <LabelTag>이름</LabelTag>
+              <InputTag ref={name} />
+            </div>
+            <BtnTag onClick={handleRegister}>회원가입</BtnTag>
+          </RegisterFrame>
+        </FlexColumn>
       </Card>
     </RegisterWrapper>
   );
@@ -134,8 +157,47 @@ export default Register;
 
 const RegisterWrapper = styled.div`
   display: flex;
+  flex-direction: column;
   height: 100vh;
   justify-content: center;
+`;
+
+const FlexColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+`;
+
+const RegisterFrame = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 30px;
+  gap: 25px;
+`;
+
+const LabelTag = styled.label`
+  font-weight: bold;
+`;
+
+const Ptag = styled.p`
+  color: ${props=>props.state === 1? "green": "red"};
+  margin: 0;
+  padding-left: 5px;
+  width: 300px;
+`;
+
+const BtnTag = styled.button`
+  width: auto;
+  height: 40px;
+  background-color: white;
+  border: 2px solid lightgray;
+  border-radius: 8px;
+  box-shadow: 1px 1px 1px gray;
+  font-size: 17px;
+  font-weight: bold;
+  color: rgb(80, 80, 80);
 `;
 
 // 비밀번호 참고자료
