@@ -122,7 +122,7 @@ const MainFrame = styled.div`
   height: auto;
   width: auto;
   min-width: 1130px;
-  min-height: 700px;
+  min-height: 361px;
   box-sizing: border-box;
   padding: 10px;
   background-color: #dad0c2;
