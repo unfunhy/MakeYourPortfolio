@@ -75,7 +75,7 @@ class Education(db.Model):
         }
 
 class Award(db.Model):
-    __tablename__ = "Award"
+    __tablename__ = "award"
     id = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     title = db.Column(db.String(128), nullable=False)
