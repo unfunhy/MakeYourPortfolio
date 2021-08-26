@@ -3,7 +3,6 @@ import { useHistory } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 
-import { baseURL } from "../../Config";
 import UserContext from "../UserContext";
 import { Card } from "../Card";
 import { InputTag } from "../portfolio/PortfolioUtil";
@@ -34,7 +33,7 @@ const Login = () => {
     };
 
     try {
-      const res = await axios.post(`${baseURL}/api/login`, JSON.stringify(data), {
+      const res = await axios.post('/api/login', JSON.stringify(data), {
         headers: {
           "Content-Type": `application/json`,
         },

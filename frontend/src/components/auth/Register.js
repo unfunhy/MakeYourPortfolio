@@ -3,7 +3,6 @@ import { useHistory } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 
-import { baseURL } from "../../Config";
 import UserContext from "../UserContext";
 import { Card } from "../Card";
 import { InputTag } from "../portfolio/PortfolioUtil";
@@ -64,7 +63,7 @@ const Register = () => {
 
     try {
       await axios.post(
-        `${baseURL}/api/register`,
+        '/api/register',
         {
           email: id,
           user_pw: pw,
@@ -87,7 +86,7 @@ const Register = () => {
     if (id.length === 0) return;
     if (regex_id.test(id)) {
       try {
-        await axios.get(`${baseURL}/api/register`, { params: { email: id } });
+        await axios.get('/api/register', { params: { email: id } });
         setIdState(1);
       } catch (e) {
         console.log(e);

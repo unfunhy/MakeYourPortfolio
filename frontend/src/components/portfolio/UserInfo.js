@@ -3,7 +3,6 @@ import axios from "axios";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 
-import { baseURL } from "../../Config";
 import { getToken, removeToken } from "../auth/Auth";
 import { PinputTag, ButtonTag, Ptag } from "./PortfolioUtil";
 import { EditableProfileImg } from "../PofileImg";
@@ -34,7 +33,7 @@ const UserInfo = ({ id, canEdit, data, username }) => {
   const handleSubmit = async () => {
     try {
       await axios.patch(
-        `${baseURL}/api/portfolio/user`,
+        '/api/portfolio/user',
         {
           user: input,
         },

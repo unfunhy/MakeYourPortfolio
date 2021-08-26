@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
-import { baseURL } from "../../Config";
 import SearchBar from "./SearchBar";
 import UserBriefUnit from "./UserBriefUnit";
 
@@ -16,7 +15,7 @@ const Network = () => {
 
   const getUserBriefInfo = async () => {
     try {
-      const res = await axios.get(`${baseURL}/api/portfolios`, {
+      const res = await axios.get('/api/portfolios', {
         params: { page, search },
       });
       setUserData(res.data);
@@ -28,7 +27,7 @@ const Network = () => {
 
   const getUserProfile = async () => {
     try {
-      const res = await axios.get(`${baseURL}/api/portfolios/profile`, {
+      const res = await axios.get('/api/portfolios/profile', {
         params: { page, search },
       });
       setUserProfile(res.data);

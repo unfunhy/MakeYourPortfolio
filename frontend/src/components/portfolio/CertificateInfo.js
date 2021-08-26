@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
 
-import { baseURL } from "../../Config";
 import { getToken, removeToken } from "../auth/Auth";
 import { PinputTag, ButtonTag, Ptag, InputTag, LiTag, UlTag } from "./PortfolioUtil";
 import DatePicker from "react-datepicker";
@@ -136,7 +135,7 @@ const CertificateInfo = ({ canEdit, data }) => {
 
     try {
       await axios.patch(
-        `${baseURL}/api/portfolio/certificate`,
+        '/api/portfolio/certificate',
         {
           certificate: data,
         },

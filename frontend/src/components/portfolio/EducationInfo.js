@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styled from "styled-components";
 
-import { baseURL } from "../../Config";
 import { getToken, removeToken } from "../auth/Auth";
 import { PinputTag, ButtonTag, Ptag, PradioTag, UlTag, LiTag } from "./PortfolioUtil";
 import { useHistory } from "react-router-dom";
@@ -102,7 +101,7 @@ const EducationInfo = ({ canEdit, data }) => {
 
     try {
       await axios.patch(
-        `${baseURL}/api/portfolio/education`,
+        '/api/portfolio/education',
         {
           education: data,
         },

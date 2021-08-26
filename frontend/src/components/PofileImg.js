@@ -3,7 +3,6 @@ import FormData from "form-data";
 import axios from "axios";
 import styled from "styled-components";
 
-import { baseURL } from "../Config";
 import { getToken } from "./auth/Auth";
 
 export const NoneditableProfileImg = ({ profile }) => {
@@ -34,7 +33,7 @@ export const EditableProfileImg = ({ id, profile, setProfile }) => {
     const formData = new FormData();
     formData.append("file", file);
     try {
-      await axios.post(`${baseURL}/api/portfolio/profile`, formData, {
+      await axios.post('/api/portfolio/profile', formData, {
         headers: {
           "Content-Type": `multipart/form-data`,
           Authorization: getToken(),

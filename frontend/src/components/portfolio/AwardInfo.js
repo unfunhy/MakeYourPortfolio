@@ -3,7 +3,6 @@ import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
 
-import { baseURL } from "../../Config";
 import { getToken, removeToken } from "../auth/Auth";
 import { PinputTag, ButtonTag, Ptag, UlTag, LiTag, PtextTag } from "./PortfolioUtil";
 
@@ -90,7 +89,7 @@ const AwardInfo = ({ canEdit, data }) => {
 
     try {
       await axios.patch(
-        `${baseURL}/api/portfolio/award`,
+        '/api/portfolio/award',
         {
           award: data,
         },

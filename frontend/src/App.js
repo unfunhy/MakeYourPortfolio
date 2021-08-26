@@ -3,7 +3,6 @@ import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
 
-import {baseURL} from "./Config";
 import UserContext from "./components/UserContext";
 import Nav from "./components/Nav";
 import Login from "./components/auth/Login";
@@ -18,7 +17,7 @@ const App = () => {
 
   const getUser = async () => {
     try {
-      const userInfo = await axios.get(`${baseURL}/api/login`, {
+      const userInfo = await axios.get('/api/login', {
         headers: { Authorization: getToken() },
       });
       setUser({ id: userInfo.data.id, name: userInfo.data.name });

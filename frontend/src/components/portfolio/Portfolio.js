@@ -3,7 +3,6 @@ import { useHistory } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 
-import { baseURL } from "../../Config";
 import UserContext from "../UserContext";
 import { Card } from "../Card";
 import { getToken, removeToken } from "../auth/Auth";
@@ -22,7 +21,7 @@ const Portfolio = (props) => {
 
   const getData = async () => {
     try {
-      const res = await axios.get(`${baseURL}/api/portfolio`, {
+      const res = await axios.get('/api/portfolio', {
         headers: { Authorization: getToken() },
         params: { id: id },
       });
@@ -50,7 +49,7 @@ const Portfolio = (props) => {
     }
 
     try {
-      const res = await axios.get(`${baseURL}/api/portfolio/profile`, {
+      const res = await axios.get('/api/portfolio/profile', {
         headers: { Authorization: getToken() },
         params: { id: id },
       });
