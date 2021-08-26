@@ -121,6 +121,8 @@ const MainFrame = styled.div`
   justify-content: flex-start;
   height: auto;
   width: auto;
+  min-width: 1130px;
+  min-height: 700px;
   box-sizing: border-box;
   padding: 10px;
   background-color: #dad0c2;
@@ -135,7 +137,6 @@ const GridContainer = styled.div`
   grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-column-gap: 10px;
   grid-row-gap: 20px;
-  padding-bottom: 7px;
   width: 100%;
   height: 100%;
 `;
