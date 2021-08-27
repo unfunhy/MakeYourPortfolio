@@ -128,14 +128,17 @@ def get_portfolio_profile(_id):
     extension = filename.split('.')[-1]
 
     #참고자료 - https://stackoverflow.com/questions/37225035/serialize-in-json-a-base64-encoded-data
-    with open(os.path.join(dir, filename), 'rb') as img:
-        byte_content = img.read()
-        base64_bytes = base64.b64encode(byte_content)
-        base64_string = base64_bytes.decode("utf-8")
+    try:
+        with open(os.path.join(dir, filename), 'rb') as img:
+            byte_content = img.read()
+            base64_bytes = base64.b64encode(byte_content)
+            base64_string = base64_bytes.decode("utf-8")
 
-        imgURL = "data:image/{};base64, {}".format(extension, base64_string)
-        ret = {"profile": imgURL}
-    
+            imgURL = "data:image/{};base64, {}".format(extension, base64_string)
+            ret = {"profile": imgURL}
+    except:
+        return abort(400)
+
     return ret
 
 

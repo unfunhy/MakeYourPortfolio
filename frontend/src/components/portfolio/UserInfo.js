@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
 
 import { getToken } from "../auth/Auth";
 import { PinputTag, ButtonTag, Ptag } from "./PortfolioUtil";
@@ -9,7 +8,6 @@ import { EditableProfileImg } from "../PofileImg";
 
 //좌상단 프로필 영역
 const UserInfo = ({ id, canEdit, data, username, setValidToken }) => {
-  const history = useHistory();
   const [editMode, setEditMode] = useState(false);
   const [input, setInput] = useState({introduce: data.introduce});
 

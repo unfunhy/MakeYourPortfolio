@@ -30,6 +30,8 @@ export const EditableProfileImg = ({ id, profile, setProfile }) => {
   }, [profile]);
 
   const upload = async (file) => {
+    if (imgSrc === "empty") return;
+    
     const formData = new FormData();
     formData.append("file", file);
     try {
