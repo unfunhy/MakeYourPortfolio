@@ -47,14 +47,17 @@ def get_portfolio_profile_list():
 
         dir = current_app.config["MYSQL_FILEDATA_DIR"]
         extension = filename.split('.')[-1]
+        try:
+            with open(os.path.join(dir, filename), 'rb') as img:
+                byte_content = img.read()
+                base64_bytes = base64.b64encode(byte_content)
+                base64_string = base64_bytes.decode("utf-8")
 
-        with open(os.path.join(dir, filename), 'rb') as img:
-            byte_content = img.read()
-            base64_bytes = base64.b64encode(byte_content)
-            base64_string = base64_bytes.decode("utf-8")
-
-            imgURL = "data:image/{};base64, {}".format(extension, base64_string)
-            data.append(imgURL)
+                imgURL = "data:image/{};base64, {}".format(extension, base64_string)
+                data.append(imgURL)
+        except IOError:
+            print("cannot find file named ...", dir + filename, " / cur user id ...", user.id)
+            return abort(400)
 
     return jsonify(data)
 
@@ -129,14 +132,13 @@ def get_portfolio_profile(_id):
 
     #참고자료 - https://stackoverflow.com/questions/37225035/serialize-in-json-a-base64-encoded-data
     try:
-        img = open(os.path.join(dir, filename), 'rb')
-        byte_content = img.read()
-        base64_bytes = base64.b64encode(byte_content)
-        base64_string = base64_bytes.decode("utf-8")
+        with open(os.path.join(dir, filename), 'rb') as img:
+            byte_content = img.read()
+            base64_bytes = base64.b64encode(byte_content)
+            base64_string = base64_bytes.decode("utf-8")
 
-        imgURL = "data:image/{};base64, {}".format(extension, base64_string)
-        ret = {"profile": imgURL}
-        img.close()
+            imgURL = "data:image/{};base64, {}".format(extension, base64_string)
+            ret = {"profile": imgURL}
     except IOError:
         print("cannot find file named ...", dir + filename)
         return abort(400)
