@@ -1,6 +1,7 @@
 import os
 from flask import request, Blueprint, jsonify, abort, current_app, send_from_directory
 from werkzeug.utils import secure_filename
+import uuid
 import dateutil.parser as dt
 import time
 import pytz
@@ -88,15 +89,6 @@ def update_portfolio_user(id):
     return '', 204
 
 
-@portfolio.route("/portfolio/profile", methods=["GET"])
-@jwt_required
-def get_portfolio_profile(_id):
-    id = request.args.get("id")
-    data = select_all_from_target_table(User, User.id, id)[0]
-
-    return {"profile": data.profile}
-
-
 @portfolio.route("/portfolio/profile", methods=["POST"])
 @jwt_required
 def update_portfolio_profile(id):
@@ -106,13 +98,16 @@ def update_portfolio_profile(id):
         return abort(400)
 
     dir = current_app.config["STATIC_FOLDER"]
-    filename = "{}.{}".format(
-        id, secure_filename(file.filename.split('.')[-1]))
-
+    filename = "{}-{}.{}".format(id, str(uuid.uuid4()), secure_filename(file.filename.split('.')[-1]))
     file.save(os.path.join(dir, filename))
 
     target = select_all_from_target_table(User, User.id, id)
+    prev_file = target[0].profile
     target[0].profile = filename
+
+    prev_file = "./statics/images/{}".format(prev_file)
+    if prev_file is not None and os.path.exists(prev_file):
+        os.remove(prev_file)
 
     try:
         db.session.commit()

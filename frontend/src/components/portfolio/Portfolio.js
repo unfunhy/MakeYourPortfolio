@@ -16,17 +16,19 @@ const Portfolio = (props) => {
   const id = parseInt(props.match.params.user_id);
   const { user, setUser } = useContext(UserContext);
   const [data, setData] = useState({});
-  const [profileImg, setProfileImg] = useState("");
   const [validToken, setValidToken] = useState(true);
   const history = useHistory();
 
   const getData = async () => {
+    if (!id || id === 0) return;
+
     try {
       const res = await axios.get("/api/portfolio", {
         headers: { Authorization: getToken() },
         params: { id: id },
       });
       setData(res.data);
+      console.log(res.data);
     } catch (e) {
       if (e.response.status === 401) {
         removeToken(setUser, history, 1);
@@ -36,32 +38,9 @@ const Portfolio = (props) => {
     }
   };
 
-  const getProfileData = async () => {
-    /*
-    # 해당 사용자 데이터라면 localstorage에 저장 및 사용
-    # 아니라면 매번 데이터 요청
-    */
-    if (user.id === 0) return;
-
-    try {
-      const res = await axios.get("/api/portfolio/profile", {
-        headers: { Authorization: getToken() },
-        params: { id: id },
-      });
-      setProfileImg(res.data.profile);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  useEffect(() => {
-    getProfileData();
-  }, [user]);
-
   // Navigation을 통해 portfolio -> portfolio이동 시 데이터 재설정
   useEffect(() => {
     getData();
-    getProfileData();
   }, [id]);
 
   useEffect(()=> {
@@ -69,6 +48,10 @@ const Portfolio = (props) => {
       removeToken(setUser, history, 1);
     }
   }, [validToken])
+
+  const setProfileImg = (src) => {
+    getData();
+  };
 
   if (Object.keys(data).length === 0 || user.id === 0)
     return <div>로딩 중...</div>;
@@ -83,7 +66,7 @@ const Portfolio = (props) => {
                 canEdit={user.id === id}
                 data={{
                   introduce: data.user.introduce,
-                  profile: profileImg,
+                  profile: data.user.profile,
                   setProfile: setProfileImg,
                 }}
                 username={data.user.name}

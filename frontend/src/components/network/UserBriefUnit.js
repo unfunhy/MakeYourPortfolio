@@ -6,12 +6,6 @@ import { NoneditableProfileImg } from "../PofileImg";
 import { Ptag, BtnTag } from "../portfolio/PortfolioUtil";
 
 const UserBriefUnit = (props) => {
-  // const [profile, setProfile] = useState(props.profile);
-
-  // useEffect(()=>{
-  //   setProfile(props.profile);
-  // }, [props.profile])
-
   return (
     <Card width="250px" height="320px">
       <UserInfoWrapper>
