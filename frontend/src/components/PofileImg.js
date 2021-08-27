@@ -43,6 +43,7 @@ export const EditableProfileImg = ({ id, profile, setProfile }) => {
           Authorization: getToken(),
         },
       });
+      setProfile();
     } catch (e) {
       alert(e);
     }
@@ -74,7 +75,6 @@ export const EditableProfileImg = ({ id, profile, setProfile }) => {
       setImgSrc(reader.result);
       localStorage.setItem(`profile-img-${id}`, reader.result);
       upload(file);
-      setProfile(reader.result);
     };
 
     reader.readAsDataURL(file);

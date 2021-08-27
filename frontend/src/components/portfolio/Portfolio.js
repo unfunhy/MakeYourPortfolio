@@ -28,7 +28,6 @@ const Portfolio = (props) => {
         params: { id: id },
       });
       setData(res.data);
-      console.log(res.data);
     } catch (e) {
       if (e.response.status === 401) {
         removeToken(setUser, history, 1);
@@ -49,7 +48,7 @@ const Portfolio = (props) => {
     }
   }, [validToken])
 
-  const setProfileImg = (src) => {
+  const setProfileImg = () => {
     getData();
   };
 
