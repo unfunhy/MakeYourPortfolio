@@ -11,7 +11,6 @@ const Network = () => {
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
   const [userData, setUserData] = useState([]);
-  const [userProfile, setUserProfile] = useState([]);
 
   const getUserBriefInfo = async () => {
     try {
@@ -24,28 +23,12 @@ const Network = () => {
     }
   };
 
-  const getUserProfile = async () => {
-    try {
-      const res = await axios.get('/api/portfolios/profile', {
-        params: { page, search },
-      });
-      setUserProfile(res.data);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const getUserData = () => {
-    getUserProfile();
-    getUserBriefInfo();
-  };
-
   useEffect(() => {
-    getUserData();
+    getUserBriefInfo();
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(getUserData, 700);
+    const timer = setTimeout(getUserBriefInfo, 700);
     return () => clearTimeout(timer);
   }, [search]);
 
@@ -71,7 +54,6 @@ const Network = () => {
                   <UserBriefUnit
                     key={data.id}
                     data={data}
-                    profile={userProfile[index]}
                     handleClick={handleClick}
                   />
                 );

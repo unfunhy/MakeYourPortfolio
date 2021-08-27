@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import React from "react";
 import styled from "styled-components";
 
 import { Card } from "../Card";
@@ -7,10 +6,16 @@ import { NoneditableProfileImg } from "../PofileImg";
 import { Ptag, BtnTag } from "../portfolio/PortfolioUtil";
 
 const UserBriefUnit = (props) => {
+  // const [profile, setProfile] = useState(props.profile);
+
+  // useEffect(()=>{
+  //   setProfile(props.profile);
+  // }, [props.profile])
+
   return (
     <Card width="250px" height="320px">
       <UserInfoWrapper>
-        <NoneditableProfileImg profile={props.profile} />
+        <NoneditableProfileImg profile={props.data.profile} />
         <Ptag
           style={{
             fontWeight: "bold",
@@ -66,13 +71,3 @@ const WrappingPtag = styled.p`
     color: gray;
   }
 `;
-
-// style={{
-//     boxSizing: "border-box",
-//     display: "block",
-//     width: "100%",
-//     height: "30px",
-//     overflow: "hidden",
-//     textOverflow: "ellipsis",
-//     whiteSpace:"nowrap",
-//   }}

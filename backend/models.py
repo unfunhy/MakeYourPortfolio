@@ -38,6 +38,7 @@ class User(db.Model):
             "id": self.id,
             "name": self.name,
             "introduce": self.introduce,
+            "profile": self.profile,
         }
 
 

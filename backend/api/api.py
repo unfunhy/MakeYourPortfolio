@@ -32,17 +32,6 @@ def get_portfolio_list():
     return jsonify(list(map(func, users)))
 
 
-@portfolio.route("/portfolios/profile", methods=["GET"])
-def get_portfolio_profile_list():
-    '''
-    # network page API for profile img
-    '''
-    search = request.args.get("search")
-    users = select_all_from_user_like(search)
-    data = list(map(lambda user: user.profile, users))
-    return jsonify(data)
-
-
 def datetime_to_timestamp(data_list, keys):
     for data in data_list:
         for key in keys:

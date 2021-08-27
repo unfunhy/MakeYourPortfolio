@@ -113,7 +113,7 @@ const AwardInfo = ({ canEdit, data, setValidToken }) => {
         }
       );
     } catch (e) {
-      if (e.response.status == 401){
+      if (e.response.status === 401){
         setValidToken(false);
       } else {
         alert(e);
@@ -142,7 +142,7 @@ const AwardInfo = ({ canEdit, data, setValidToken }) => {
         },
       })
     }
-    setInput(input.filter(data=>data.id != curId));
+    setInput(input.filter(data=>data.id !== curId));
   };
 
   return (
