@@ -6,10 +6,11 @@ import styled from "styled-components";
 import { getToken } from "./auth/Auth";
 
 export const NoneditableProfileImg = ({ profile }) => {
-  const [imgSrc, setImgSrc] = useState(profile);
+  const [imgSrc, setImgSrc] = useState("");
 
   useEffect(() => {
-    setImgSrc(profile);
+    if (!profile || profile.length === 0 || profile.length > 50) return;
+    setImgSrc(`/api/img?imgSrc=${profile}`);
   }, [profile]);
 
   return (
@@ -23,19 +24,20 @@ export const NoneditableProfileImg = ({ profile }) => {
 };
 
 export const EditableProfileImg = ({ id, profile, setProfile }) => {
-  const [imgSrc, setImgSrc] = useState(profile);
+  const [imgSrc, setImgSrc] = useState("");
 
   useEffect(() => {
-    setImgSrc(profile);
+    if (profile === null || profile.length === 0 || profile.length > 50) return;
+    setImgSrc(`/api/img?imgSrc=${profile}`);
   }, [profile]);
 
   const upload = async (file) => {
     if (imgSrc === "empty") return;
-    
+
     const formData = new FormData();
     formData.append("file", file);
     try {
-      await axios.post('/api/portfolio/profile', formData, {
+      await axios.post("/api/portfolio/profile", formData, {
         headers: {
           "Content-Type": `multipart/form-data`,
           Authorization: getToken(),

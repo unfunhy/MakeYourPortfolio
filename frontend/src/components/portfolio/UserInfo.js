@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import { getToken } from "../auth/Auth";
 import { PinputTag, ButtonTag, Ptag } from "./PortfolioUtil";
-import { EditableProfileImg } from "../PofileImg";
+import { EditableProfileImg, NoneditableProfileImg } from "../PofileImg";
 
 //좌상단 프로필 영역
 const UserInfo = ({ id, canEdit, data, username, setValidToken }) => {
@@ -55,11 +55,18 @@ const UserInfo = ({ id, canEdit, data, username, setValidToken }) => {
 
   return (
     <UserInfoWrapper>
+      {canEdit ? (
       <EditableProfileImg
         id={id}
         profile={data.profile}
         setProfile={data.setProfile}
-      />
+      /> ) : (
+      <NoneditableProfileImg
+        id={id}
+        profile={data.profile}
+        setProfile={data.setProfile}
+      />)
+      }
       <Ptag style={{
         fontWeight: "bold", 
         fontSize: "20px",

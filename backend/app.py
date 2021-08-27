@@ -11,7 +11,7 @@ from auth import auth
 from api import portfolio
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="statics/images")
 CORS(app)
 
 set_config(app)

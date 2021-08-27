@@ -43,24 +43,13 @@ const Portfolio = (props) => {
     */
     if (user.id === 0) return;
 
-    if (user.id === id) {
-      const localData = localStorage.getItem(`profile-img-${id}`);
-      if (localData !== null) {
-        setProfileImg(localData);
-        return;
-      }
-    }
-
     try {
       const res = await axios.get("/api/portfolio/profile", {
         headers: { Authorization: getToken() },
         params: { id: id },
       });
       setProfileImg(res.data.profile);
-      if (user.id === id)
-        localStorage.setItem(`profile-img-${id}`, res.data.profile);
     } catch (e) {
-      if (user.id === id) localStorage.setItem(`profile-img-${id}`, "empty");
       console.log(e);
     }
   };

@@ -1,6 +1,5 @@
 import os
-import base64
-from flask import request, Blueprint, jsonify, abort, current_app
+from flask import request, Blueprint, jsonify, abort, current_app, send_from_directory
 from werkzeug.utils import secure_filename
 import dateutil.parser as dt
 import time
@@ -15,10 +14,12 @@ from ErrorManager import Error, error_msg
 
 portfolio = Blueprint('portfolio', __name__, url_prefix="/api")
 
+
 def select_all_from_user_like(search):
-    if len(search) < 2: 
+    if len(search) < 2:
         return select_all_from_target_table(User)
     return User.query.filter(User.name.like("%{}%".format(search))).all()
+
 
 @portfolio.route("/portfolios", methods=["GET"])
 def get_portfolio_list():
@@ -30,6 +31,7 @@ def get_portfolio_list():
     func = User.to_dict
     return jsonify(list(map(func, users)))
 
+
 @portfolio.route("/portfolios/profile", methods=["GET"])
 def get_portfolio_profile_list():
     '''
@@ -37,35 +39,14 @@ def get_portfolio_profile_list():
     '''
     search = request.args.get("search")
     users = select_all_from_user_like(search)
-    data = []
-
-    for user in users:
-        filename = user.profile
-        if filename is None:
-            data.append("")
-            continue
-
-        dir = current_app.config["MYSQL_FILEDATA_DIR"]
-        extension = filename.split('.')[-1]
-        try:
-            with open(os.path.join(dir, filename), 'rb') as img:
-                byte_content = img.read()
-                base64_bytes = base64.b64encode(byte_content)
-                base64_string = base64_bytes.decode("utf-8")
-
-                imgURL = "data:image/{};base64, {}".format(extension, base64_string)
-                data.append(imgURL)
-        except IOError:
-            print("cannot find file named ...", dir + filename, " / cur user id ...", user.id)
-            data.append("")
-
+    data = list(map(lambda user: user.profile, users))
     return jsonify(data)
+
 
 def datetime_to_timestamp(data_list, keys):
     for data in data_list:
         for key in keys:
             data[key] = time.mktime(data[key].timetuple()) * 1000
-
 
 
 def get_target_data(id, target_obj):
@@ -117,33 +98,14 @@ def update_portfolio_user(id):
 
     return '', 204
 
+
 @portfolio.route("/portfolio/profile", methods=["GET"])
 @jwt_required
 def get_portfolio_profile(_id):
     id = request.args.get("id")
     data = select_all_from_target_table(User, User.id, id)[0]
 
-    filename = data.profile
-    if filename is None:
-        return abort(400)
-
-    dir = current_app.config["MYSQL_FILEDATA_DIR"]
-    extension = filename.split('.')[-1]
-
-    #참고자료 - https://stackoverflow.com/questions/37225035/serialize-in-json-a-base64-encoded-data
-    try:
-        with open(os.path.join(dir, filename), 'rb') as img:
-            byte_content = img.read()
-            base64_bytes = base64.b64encode(byte_content)
-            base64_string = base64_bytes.decode("utf-8")
-
-            imgURL = "data:image/{};base64, {}".format(extension, base64_string)
-            ret = {"profile": imgURL}
-    except IOError:
-        print("cannot find file named ...", dir + filename)
-        return abort(400)
-
-    return ret
+    return {"profile": data.profile}
 
 
 @portfolio.route("/portfolio/profile", methods=["POST"])
@@ -154,9 +116,9 @@ def update_portfolio_profile(id):
     if file is None or file.filename == "":
         return abort(400)
 
-    dir = current_app.config["MYSQL_FILEDATA_DIR"]
-    os.makedirs(dir, exist_ok=True)
-    filename = "{}.{}".format(id, secure_filename(file.filename.split('.')[-1]))
+    dir = current_app.config["STATIC_FOLDER"]
+    filename = "{}.{}".format(
+        id, secure_filename(file.filename.split('.')[-1]))
 
     file.save(os.path.join(dir, filename))
 
@@ -171,10 +133,12 @@ def update_portfolio_profile(id):
 
     return '', 204
 
+
 def convert_datetime_format(data_list, keys):
     for data in data_list:
         for key in keys:
-            data[key] = dt.parse(data[key]).astimezone(tz=pytz.timezone("Asia/Seoul"))
+            data[key] = dt.parse(data[key]).astimezone(
+                tz=pytz.timezone("Asia/Seoul"))
 
 # portfolio update
 def update_portfolio(target_obj, target_str, user_id):
@@ -189,7 +153,8 @@ def update_portfolio(target_obj, target_str, user_id):
         return abort(400, "변경 데이터가 없습니다.")
 
     for data in data_list:
-        curData = select_all_from_target_table(target_obj, target_obj.id, data.get("id"))
+        curData = select_all_from_target_table(
+            target_obj, target_obj.id, data.get("id"))
         if len(curData) != 0:
             curData = curData[0]
             curData.update(data)
@@ -200,11 +165,11 @@ def update_portfolio(target_obj, target_str, user_id):
             db.session.add(curData)
 
         try:
-            db.session.commit() 
+            db.session.commit()
         except:
             db.session.rollback()
             return abort(500, error_msg[Error.INTERNAL_DB_ERROR])
-        
+
         id_list.append(curData.id)
 
     return jsonify(id_list)
@@ -253,7 +218,7 @@ def delete_portfolio(target_obj, user_id):
     db.session.delete(curData)
 
     try:
-        db.session.commit() 
+        db.session.commit()
     except:
         db.session.rollback()
         return abort(500, error_msg[Error.INTERNAL_DB_ERROR])
@@ -283,3 +248,9 @@ def delete_portfolio_project(id):
 @jwt_required
 def delete_portfolio_cert(id):
     return delete_portfolio(Certificate, id)
+
+
+@portfolio.route("/img", methods=["GET"])
+def get_profile_img():
+    img_src = request.args.get("imgSrc")
+    return current_app.send_static_file(img_src)

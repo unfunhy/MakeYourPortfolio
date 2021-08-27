@@ -28,4 +28,4 @@ __pycache__
 frontend/public/*.txt
 .vscode
 node_modules
-user_images
+backend/statics
