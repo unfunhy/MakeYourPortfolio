@@ -4,8 +4,18 @@ URI= "/login"       METHODS=["POST"]    JSON {user_id, user_pw} / return {JWT, i
 URI= "/register"    METHODS=["POST"]    JSON {user_id, user_pw}  
 URI= "/portfolios"  METHODS=["GET"]     PARAMS=search_data / return data  
 URI= "/portfolio"   METHODS=["GET"]     JWT=>id / return data  
-URI= "/portfolio"   METHODS=["PATCH"]   JWT=>id, JSON {target, target_id, ...}  
-~~URI= "/logout"      METHODS=["GET"]     Deleted ...~~  
+URI= "/portfolio/user"   METHODS=["PATCH"]   JWT=>id / return JSON {target, target_id, ...}  
+URI= "/portfolio/profile"   METHODS=["PATCH"]   JWT=>id / return JSON {target, target_id, ...}  
+URI= "/portfolio/education"   METHODS=["PATCH"]   JWT=>id / return JSON {target, target_id, ...}  
+URI= "/portfolio/award"   METHODS=["PATCH"]   JWT=>id / return JSON {target, target_id, ...}  
+URI= "/portfolio/project"   METHODS=["PATCH"]   JWT=>id / return JSON {target, target_id, ...}  
+URI= "/portfolio/certificate"   METHODS=["PATCH"]   JWT=>id / return JSON {target, target_id, ...}  
+URI= "/portfolio/education"   METHODS=["DELETE"]   JWT=>id  
+URI= "/portfolio/award"   METHODS=["DELETE"]   JWT=>id  
+URI= "/portfolio/project"   METHODS=["DELETE"]   JWT=>id  
+URI= "/portfolio/certificate"   METHODS=["DELETE"]   JWT=>id  
+URI= "/img"   METHODS=["GET"]   PARAMS=imgSrc    
+  
   
 # Schema  
 
@@ -76,8 +86,3 @@ portfolios
 portfolio/selected_user_id  
   
   
-
-# 구현 필요한 부분
-1. portfolio 페이지
-2. file input api, schema 변경
-2. network 페이지
