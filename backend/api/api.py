@@ -57,7 +57,7 @@ def get_portfolio_profile_list():
                 data.append(imgURL)
         except IOError:
             print("cannot find file named ...", dir + filename, " / cur user id ...", user.id)
-            return abort(400)
+            data.append("")
 
     return jsonify(data)
 
