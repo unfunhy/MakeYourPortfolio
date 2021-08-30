@@ -2,6 +2,12 @@ from db_connect import db
 from datetime import datetime
 
 class User(db.Model):
+    '''
+    # 업데이트 가능 항목: introduce, profile
+    # 특이사항: profile은 별도 관리
+    # 다른 테이블과 다르게 create와 update의 대상이 되는 column이 다르므로
+    # 별도의 init함수 작성
+    '''
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
     email = db.Column(db.String(32), nullable=False, unique=True)
@@ -12,20 +18,29 @@ class User(db.Model):
     register_date = db.Column(db.DateTime, default=datetime.utcnow)
     last_update = db.Column(db.DateTime)
 
-    def __init__(self, email, user_pw, name):
-        self.email = email
-        self.user_pw = user_pw
-        self.name = name
+    def __set_column__(self, key, val):
+        if key == "introduce":
+            self.introduce = val
+        elif key == "profile":
+            self.profile = val
+
+    def update(self, data):
+        for key in data.keys():
+            self.__set_column__(key, data.get(key))
+
+    def __init__(self, data):
+        self.email = data.get("email")
+        self.user_pw = data.get("user_pw")
+        self.name = data.get("name")
 
     def to_dict(self):
         return {
             "id": self.id,
-            "email": self.email,
             "name": self.name,
             "introduce": self.introduce,
             "profile": self.profile,
-            "last_update": self.last_update,
         }
+
 
 class Education(db.Model):
     __tablename__ = "education"
@@ -35,10 +50,22 @@ class Education(db.Model):
     major = db.Column(db.String(128), nullable=False)
     state = db.Column(db.SMALLINT, nullable=False)
 
-    def __init__(self, school, major, state):
-        self.school = school
-        self.major = major
-        self.state = state
+    def __set_column__(self, key, val):
+        if key == "school":
+            self.school = val
+        elif key == "major":
+            self.major = val
+        elif key == "state":
+            self.state = val
+        elif key == "user_id":
+            self.user_id = val
+
+    def update(self, data):
+        for key in data.keys():
+            self.__set_column__(key, data.get(key))
+
+    def __init__(self, data):
+        self.update(data)
     
     def to_dict(self):
         return {
@@ -49,15 +76,26 @@ class Education(db.Model):
         }
 
 class Award(db.Model):
-    __tablename__ = "Award"
+    __tablename__ = "award"
     id = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     title = db.Column(db.String(128), nullable=False)
     desc = db.Column(db.Text(), nullable=False)
 
-    def __init__(self, title, desc):
-        self.title = title
-        self.desc = desc
+    def __set_column__(self, key, val):
+        if key == "title":
+            self.title = val
+        elif key == "desc":
+            self.desc = val
+        elif key == "user_id":
+            self.user_id = val
+
+    def update(self, data):
+        for key in data.keys():
+            self.__set_column__(key, data.get(key))
+
+    def __init__(self, data):
+        self.update(data)
     
     def to_dict(self):
         return {
@@ -72,14 +110,27 @@ class Project(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     title = db.Column(db.String(128), nullable=False)
     desc = db.Column(db.Text(), nullable=False)
-    start  = db.Column(db.DateTime, nullable=False)
-    end  = db.Column(db.DateTime, nullable=False)
+    start  = db.Column(db.Date, nullable=False)
+    end  = db.Column(db.Date, nullable=False)
 
-    def __init__(self, title, desc, start, end):
-        self.title = title
-        self.desc = desc
-        self.start = start
-        self.end = end
+    def __set_column__(self, key, val):
+        if key == "title":
+            self.title = val
+        elif key == "desc":
+            self.desc = val
+        elif key == "start":
+            self.start = val
+        elif key == "end":
+            self.end = val
+        elif key == "user_id":
+            self.user_id = val
+
+    def update(self, data):
+        for key in data.keys():
+            self.__set_column__(key, data.get(key))
+
+    def __init__(self, data):
+        self.update(data)
     
     def to_dict(self):
         return {
@@ -90,18 +141,31 @@ class Project(db.Model):
             "end": self.end,
         }
 
+
 class Certificate(db.Model):
     __tablename__ = "certificate"
     id = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     title = db.Column(db.String(128), nullable=False)
     auth = db.Column(db.String(128), nullable=False)
-    acq_date = db.Column(db.DateTime, nullable=False)
+    acq_date = db.Column(db.Date, nullable=False)
 
-    def __init__(self, title, auth, acq_date):
-        self.title = title
-        self.auth = auth
-        self.acq_date = acq_date
+    def __set_column__(self, key, val):
+        if key == "title":
+            self.title = val
+        elif key == "auth":
+            self.auth = val
+        elif key == "acq_date":
+            self.acq_date = val
+        elif key == "user_id":
+            self.user_id = val
+
+    def update(self, data):
+        for key in data.keys():
+            self.__set_column__(key, data.get(key))
+
+    def __init__(self, data):
+        self.update(data)
     
     def to_dict(self):
         return {

@@ -5,13 +5,127 @@ import styled from "styled-components";
 
 import UserContext from "../UserContext";
 import { Card } from "../Card";
-import * as PortfolioDetail from "./PortfolioDetail";
 import { getToken, removeToken } from "../auth/Auth";
+import UserInfo from "./UserInfo";
+import EducationInfo from "./EducationInfo";
+import AwardInfo from "./AwardInfo";
+import ProjectInfo from "./ProjectInfo";
+import CertificateInfo from "./CertificateInfo";
 
-const PortfolioWrapper = styled.div`
-  height: 100vh;
+const Portfolio = (props) => {
+  const id = parseInt(props.match.params.user_id);
+  const { user, setUser } = useContext(UserContext);
+  const [data, setData] = useState({});
+  const [validToken, setValidToken] = useState(true);
+  const history = useHistory();
+
+  const getData = async () => {
+    if (!id || id === 0) return;
+
+    try {
+      const res = await axios.get("/api/portfolio", {
+        headers: { Authorization: getToken() },
+        params: { id: id },
+      });
+      setData(res.data);
+    } catch (e) {
+      if (e.response.status === 401) {
+        removeToken(setUser, history, 1);
+      } else {
+        alert(e);
+      }
+    }
+  };
+
+  // Navigation을 통해 portfolio -> portfolio이동 시 데이터 재설정
+  useEffect(() => {
+    getData();
+  }, [id]);
+
+  useEffect(()=> {
+    if(!validToken){
+      removeToken(setUser, history, 1);
+    }
+  }, [validToken])
+
+  const setProfileImg = () => {
+    getData();
+  };
+
+  if (Object.keys(data).length === 0 || user.id === 0)
+    return <div>로딩 중...</div>;
+  else
+    return (
+      <PortfolioWrapper>
+        <PortfolioMainFrame>
+          <UserInfoWrapper>
+            <Card width="228px" height="auto" style={{ marginRight: 10 }}>
+              <UserInfo
+                id={id}
+                canEdit={user.id === id}
+                data={{
+                  introduce: data.user.introduce,
+                  profile: data.user.profile,
+                  setProfile: setProfileImg,
+                }}
+                username={data.user.name}
+                setValidToken={setValidToken}
+              />
+            </Card>
+          </UserInfoWrapper>
+          <DetailInfoWrapper>
+            <Card width="600px" height="auto">
+              <EducationInfo
+                canEdit={user.id === id}
+                data={data.education}
+                setValidToken={setValidToken}
+              />
+            </Card>
+            <Card width="600px" height="auto">
+              <AwardInfo
+                canEdit={user.id === id}
+                data={data.award}
+                setValidToken={setValidToken}
+              />
+            </Card>
+            <Card width="600px" height="auto">
+              <ProjectInfo
+                canEdit={user.id === id}
+                data={data.project}
+                setValidToken={setValidToken}
+              />
+            </Card>
+            <Card width="600px" height="auto">
+              <CertificateInfo
+                canEdit={user.id === id}
+                data={data.certificate}
+                setValidToken={setValidToken}
+              />
+            </Card>
+          </DetailInfoWrapper>
+        </PortfolioMainFrame>
+      </PortfolioWrapper>
+    );
+};
+
+const PortfolioMainFrame = styled.div`
   display: flex;
   justify-content: flex-start;
+  height: 100%;
+  width: 888px;
+  box-sizing: border-box;
+  padding: 10px;
+  background-color: #dad0c2;
+  border-radius: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  //border: 1px solid lightgray;
+`;
+
+const PortfolioWrapper = styled.div`
+  height: 100%auto;
+  display: flex;
+  justify-content: center;
   padding-top: 50px;
   padding-left: 10px;
 `;
@@ -19,102 +133,9 @@ const PortfolioWrapper = styled.div`
 const DetailInfoWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  padding-bottom: 7px;
 `;
 
-const Portfolio = (props) => {
-  const id = parseInt(props.match.params.user_id);
-
-  const { user, setUser } = useContext(UserContext);
-  const history = useHistory();
-  const [data, setData] = useState({});
-
-  const fetch = async () => {
-    try {
-      const res = await axios.get("/api/portfolio", {
-        headers: { Authorization: getToken() },
-      });
-      console.log(res.data);
-      setData(res.data);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  useEffect(() => {
-    /* 
-    # componentDidMount
-    # 
-    # 1. user.id가 0이 아닌 경우 portfolio data 요청
-    # 2. user.id가 0인 경우(새로고침 등의 이유로 context가 초기화된 경우)
-    #    userInfo 요청 후 portfolio data 요청
-    */
-    if (user.id !== 0)
-      fetch();
-    //
-    else {
-      const getUser = async () => {
-        try {
-          const userInfo = await axios.get("/api/login", {
-            headers: { Authorization: getToken() },
-          });
-          //useContext가 의미가 있나 확인 필요
-          //refresh할 때 마다 초기화 됨 -> 결국 서버에서 id, name 다시 얻어와야함
-          //그럼 전역을 쓰는 이유가 무엇? 그냥 useState쓰면 안되나
-          setUser({ id: userInfo.data.id, name: userInfo.data.name });
-        } catch {
-          removeToken();
-          history.push("/login");
-          return;
-        }
-      };
-      getUser();
-      fetch();
-    }
-  }, []);
-
-  // const update_profile = () => {};
-
-  // const update_introduce = () => {};
-
-  // const create_education = () => {};
-
-  // const update_education = () => {};
-
-  // const create_award = () => {};
-
-  // const update_award = () => {};
-
-  // const create_project = () => {};
-
-  // const update_project = () => {};
-
-  // const create_cert = () => {};
-
-  // const update_cert = () => {};
-
-  if (data === {} || user.id === 0) return <div>로딩 중...</div>;
-  else
-    return (
-      <PortfolioWrapper>
-        <Card width="100px" height="120px">
-          <PortfolioDetail.Profile
-            canEdit={user.id === id}
-            data={{
-              introduce: data.introduce,
-              profile: data.profile,
-            }}
-            username={user.name}
-          />
-        </Card>
-        <DetailInfoWrapper>
-          <Card width="400px" height="auto"><p>asdfasdf</p></Card>
-          <Card width="400px" height="auto"><p>asdfasdf</p></Card>
-          <Card width="400px" height="auto"><p>asdfasdf</p></Card>
-          <Card width="400px" height="auto"><p>asdfasdf</p></Card>
-          <Card width="400px" height="auto"><p>asdfasdf</p></Card>
-        </DetailInfoWrapper>
-      </PortfolioWrapper>
-    );
-};
+const UserInfoWrapper = styled.div``;
 
 export default Portfolio;

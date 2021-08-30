@@ -1,7 +1,7 @@
 import sys
 sys.path.append("./api")
 
-import config
+from config import set_config
 from flask import Flask
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
@@ -11,10 +11,10 @@ from auth import auth
 from api import portfolio
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="statics/images")
 CORS(app)
 
-config.set_config()
+set_config(app)
 
 app.register_blueprint(auth)
 app.register_blueprint(portfolio)
