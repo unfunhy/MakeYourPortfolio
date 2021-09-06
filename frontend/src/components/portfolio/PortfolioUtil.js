@@ -131,7 +131,7 @@ export const PinputTag = (props) => {
   else 
     return (
       <Ptag 
-        data-placeholder={props.placeHoler}
+        data-placeholder={props.placeHolder}
         style={props.style}
       >{props.data}</Ptag>
     );
@@ -157,7 +157,7 @@ export const PtextTag = (props) => {
             return (
               <Ptag 
                 key={index} 
-                data-placeholder={props.placeHoler}
+                data-placeholder={props.placeHolder}
                 style={{
                   paddingTop: 0,
                   paddingBottom: 0,

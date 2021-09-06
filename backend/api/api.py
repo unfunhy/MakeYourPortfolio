@@ -68,7 +68,6 @@ def get_portfolio(_id):
     return data
 
 # portfolio user update API
-# introduce만 관리, profile은 별도의 api
 @portfolio.route("/portfolio/user", methods=["PATCH"])
 @jwt_required
 def update_portfolio_user(id):

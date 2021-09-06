@@ -80,7 +80,7 @@ const UserInfo = ({ id, canEdit, data, username, setValidToken }) => {
         editMode={editMode}
         data={input.introduce}
         tagName="introduce"
-        placeHoler="한 줄 소개"
+        placeHolder="한 줄 소개"
       />
       {canEdit === true && (
         <ButtonTag

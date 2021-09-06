@@ -32,7 +32,7 @@ export const EditableProfileImg = ({ id, profile, setProfile }) => {
   }, [profile]);
 
   const upload = async (file) => {
-    if (imgSrc === "empty") return;
+    if (imgSrc === "") return;
 
     const formData = new FormData();
     formData.append("file", file);
@@ -73,7 +73,6 @@ export const EditableProfileImg = ({ id, profile, setProfile }) => {
     const reader = new FileReader();
     reader.onload = () => {
       setImgSrc(reader.result);
-      localStorage.setItem(`profile-img-${id}`, reader.result);
       upload(file);
     };
 
