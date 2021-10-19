@@ -1,24 +1,66 @@
+# 프로젝트 설명
+PortfolioIn은 상용 서비스인 LinkedIn처럼 개인이 포트폴리오를 작성하고 다른 이들과 공유할 수 있는 서비스입니다. 회원가입, 로그인, 개인 포트폴리오 작성, 다른 유저의 포트폴리오를 모아서 보여주는 네트워크, 상세 포트폴리오 페이지 등으로 구성되어 있으며, LinkedIn에서 사용되는 다른 사용자와의 상호 작용이나, 업종이나 관심 분야에 따라 사용자를 추천해주는 시스템은 앞으로 개선해나가야 할 기능입니다.
+  
+  
+# 기술 스택
+### Backend 
+- Python, Flask, Sqlalchemy, MySQL  
+### Frontend  
+- Javascript, React, Styled component  
+### 통신 및 인증 
+- Axios, JWT
+  
+  
 # Rest API  
-URI= "/login"       METHODS=["GET"]     JWT=>id / return id, name  
-URI= "/login"       METHODS=["POST"]    JSON {user_id, user_pw} / return {JWT, id, name}  
-URI= "/register"    METHODS=["POST"]    JSON {user_id, user_pw}  
-URI= "/portfolios"  METHODS=["GET"]     PARAMS=search_data / return data  
-URI= "/portfolio"   METHODS=["GET"]     JWT=>id / return data  
-URI= "/portfolio/user"   METHODS=["PATCH"]   JWT=>id / return JSON {target, target_id, ...}  
-URI= "/portfolio/profile"   METHODS=["PATCH"]   JWT=>id / return JSON {target, target_id, ...}  
-URI= "/portfolio/education"   METHODS=["PATCH"]   JWT=>id / return JSON {target, target_id, ...}  
-URI= "/portfolio/award"   METHODS=["PATCH"]   JWT=>id / return JSON {target, target_id, ...}  
-URI= "/portfolio/project"   METHODS=["PATCH"]   JWT=>id / return JSON {target, target_id, ...}  
-URI= "/portfolio/certificate"   METHODS=["PATCH"]   JWT=>id / return JSON {target, target_id, ...}  
-URI= "/portfolio/education"   METHODS=["DELETE"]   JWT=>id  
-URI= "/portfolio/award"   METHODS=["DELETE"]   JWT=>id  
-URI= "/portfolio/project"   METHODS=["DELETE"]   JWT=>id  
-URI= "/portfolio/certificate"   METHODS=["DELETE"]   JWT=>id  
+##### get_user_info
+URI = "/login"    
+METHODS = ["GET"]  
+headers = { Authorization }  
+response = { id, name }
+desc = 토큰으로 유저 id, name 확인용 api
+##### login
+URI = "/login"  
+METHODS = ["POST"]  
+data = { email, user_pw }  
+response = { Authorization, id, name}  
+desc = 유저 로그인 api
+##### check_email
+URI = "/register"  
+METHODS = ["GET"]  
+parmas = { email }   
+##### register
+URI = "/register"  
+METHODS = ["POST"]  
+data = {user_id, user_pw}  
+##### get_portfolio_list
+URI = "/portfolios"  
+METHODS = ["GET"]  
+params = { search }  
+response = { { id, introduce, name, profile }, ... }
+desc = 네트워크 페이지 유저 정보 api
+##### get_portfolio
+URI = "/portfolio"   
+METHODS = ["GET"]  
+headers, params = { Authorization, id } 
+response = { user, education, award, project, certificate }  
+desc = 특정 유저의 상세 포트폴리오 페이지 열람 api
+##### update_portfolio
+URI= "/portfolio/user"   METHODS=["PATCH"]   headers={ Authorization }  response = {target, target_id, ...}  
+URI= "/portfolio/profile"   METHODS=["PATCH"]   headers={ Authorization }  response = {target, target_id, ...}  
+URI= "/portfolio/education"   METHODS=["PATCH"]   headers={ Authorization }  response = {target, target_id, ...}  
+URI= "/portfolio/award"   METHODS=["PATCH"]   headers={ Authorization }  response = {target, target_id, ...}  
+URI= "/portfolio/project"   METHODS=["PATCH"]   headers={ Authorization }  response = {target, target_id, ...}  
+URI= "/portfolio/certificate"   METHODS=["PATCH"]   headers={ Authorization }  response = {target, target_id, ...}  
+##### delete_information
+URI= "/portfolio/education"   METHODS=["DELETE"]   headers={ Authorization }  
+URI= "/portfolio/award"   METHODS=["DELETE"]   headers={ Authorization }  
+URI= "/portfolio/project"   METHODS=["DELETE"]   headers={ Authorization }  
+URI= "/portfolio/certificate"   METHODS=["DELETE"]   headers={ Authorization }  
+##### get_static_img
 URI= "/img"   METHODS=["GET"]   PARAMS=imgSrc    
   
   
-# Schema  
-
+# DB Schema  
 ```
 Table user {  
     id,          (int, pk, fk)  
@@ -28,7 +70,6 @@ Table user {
     introduce    (varchar(128))  
     profile      (varchar(128))
     register_date, (datetime)  
-    last_update, (datetime)  
 }
 ```
 
@@ -75,14 +116,3 @@ Table Certificate {
     acq_date     (date)  
 }  
 ```
-
-
-# Flow  
-register  
-login  
-portfolio/loggined_user_id  
-  
-portfolios  
-portfolio/selected_user_id  
-  
-  
